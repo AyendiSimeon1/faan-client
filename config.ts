@@ -1,0 +1,1 @@
+export const BaseUrl = "https://faan-server.onrender.com/api/v1";
