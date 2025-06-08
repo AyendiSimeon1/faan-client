@@ -71,7 +71,7 @@ const ParkingSessionPage: React.FC = () => {
         
         setDuration(newDuration);
         // Calculate and update the fee in the store
-        dispatch(updateLiveDuration(diffInSeconds));
+        dispatch(updateLiveDuration(diffInSeconds.toString()));
       };
 
       // Update immediately
@@ -199,7 +199,7 @@ const ParkingSessionPage: React.FC = () => {
                 {showRateDetails ? "Hide Rate Details ↑" : "View Rate Details →"}
               </button>
             </div>
-            {show
+            {showRateDetails && <RateDetails />}
           </InfoCard>          {/* Session Status */}
           <InfoCard title="Session Status">
             <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-200">

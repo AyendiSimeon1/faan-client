@@ -1,15 +1,29 @@
 import axios from 'axios';
-import { BaseUrl } from '../../../config'
+import { BaseUrl } from '../../../config';
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 
+// Define the ParkingSession interface with additional fields from the API response
 interface ParkingSession {
   id: string;
   plateNumber: string;
   vehicleType: string;
   entryTime: string; // ISO string or timestamp
-  liveDuration: string; // Formatted string e.g., "00:47:12"
-  feeSoFar: number;
-  status: 'Active' | 'Inactive' | 'Pending';
+  liveDuration?: string; // For active sessions, e.g., "00:47:12"
+  feeSoFar?: number; // For active sessions
+  status: string; // Flexible to accommodate "active", "pending_payment", etc.
+  exitTime?: string; // For ended sessions
+  durationInMinutes?: number; // For ended sessions
+  calculatedFee?: number; // For ended sessions
+}
+
+// Define the structure for the ended session data, including payment result
+interface EndedSessionData {
+  session: ParkingSession;
+  paymentResult: {
+    successful: boolean;
+    message: string;
+  };
+  message: string;
 }
 
 interface StartSessionPayload {
@@ -20,6 +34,7 @@ interface StartSessionPayload {
 interface ParkingState {
   activeSession: ParkingSession | null;
   sessionHistory: ParkingSession[];
+  lastEndedSession: EndedSessionData | null; // New property for leave session data
   isLoading: boolean;
   error: string | null;
 }
@@ -27,9 +42,24 @@ interface ParkingState {
 const initialState: ParkingState = {
   activeSession: null,
   sessionHistory: [],
+  lastEndedSession: null,
   isLoading: false,
   error: null,
 };
+
+// Function to map API session data to ParkingSession interface
+const mapApiSessionToParkingSession = (apiSession: any): ParkingSession => ({
+  id: apiSession._id,
+  plateNumber: apiSession.vehiclePlateNumber,
+  vehicleType: apiSession.vehicleType,
+  entryTime: apiSession.entryTime,
+  exitTime: apiSession.exitTime,
+  durationInMinutes: apiSession.durationInMinutes,
+  calculatedFee: apiSession.calculatedFee,
+  status: apiSession.status,
+  liveDuration: apiSession.liveDuration || undefined,
+  feeSoFar: apiSession.feeSoFar || undefined,
+});
 
 export const startSession = createAsyncThunk(
   'parking/startSession',
@@ -39,19 +69,11 @@ export const startSession = createAsyncThunk(
       if (!accessToken) {
         return rejectWithValue('No access token found');
       }
-
-      const headers = {
-        Authorization: `Bearer ${accessToken}`
-      };
-
-      const response = await axios.post(
-        `${BaseUrl}/parking/start-session/plate`,
-        payload,
-        { headers }
-      );
-
+      const headers = { Authorization: `Bearer ${accessToken}` };
+      const response = await axios.post(`${BaseUrl}/parking/session/start/plate`, payload, { headers });
       console.log('response', response.data);
-      return response.data;    } catch (error: any) {
+      return mapApiSessionToParkingSession(response.data);
+    } catch (error: any) {
       console.log("error", error);
       if (error.response?.status === 409) {
         return rejectWithValue('A parking session is already active for this vehicle');
@@ -69,19 +91,37 @@ export const fetchActiveSessionDetails = createAsyncThunk(
       if (!accessToken) {
         return rejectWithValue('No access token found');
       }
-
-      const headers = {
-        Authorization: `Bearer ${accessToken}`
-      };
-
-      const response = await axios.get(
-        `${BaseUrl}/api/v1/parking/session/${sessionId}`,
-        { headers }
-      );
-
-      return response.data;
+      const headers = { Authorization: `Bearer ${accessToken}` };
+      const response = await axios.get(`${BaseUrl}/api/v1/parking/session/${sessionId}`, { headers });
+      return mapApiSessionToParkingSession(response.data);
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch session details');
+    }
+  }
+);
+
+export const endSession = createAsyncThunk(
+  'parking/endSession',
+  async (plateNumber: string, { rejectWithValue }) => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        return rejectWithValue('No access token found');
+      }
+      const headers = { Authorization: `Bearer ${accessToken}` };
+      const payload = { paymentMethodId: 'ghjghgkjgjh', paymentMethodType: 'card' };
+      const response = await axios.put(`${BaseUrl}/parking/session/${plateNumber}/end`, payload, { headers });
+      console.log('the data', response.data);
+      const session = mapApiSessionToParkingSession(response.data.data.session);
+      return {
+        session,
+        paymentResult: response.data.data.paymentResult,
+        message: response.data.data.message,
+      };
+    } catch (error: any) {
+      console.log('the error', error);
+      console.error('Failed to end parking session:', error);
+      return rejectWithValue(error.response?.data?.message || 'Failed to end parking session');
     }
   }
 );
@@ -95,19 +135,16 @@ export const fetchSessionHistory = createAsyncThunk(
       if (!accessToken) {
         return rejectWithValue('No access token found');
       }
-      const headers = {
-        Authorization: `Bearer ${accessToken}`
-      };
-      const response = await axios.get(`${BaseUrl}/parking/history`, { headers }); 
+      const headers = { Authorization: `Bearer ${accessToken}` };
+      const response = await axios.get(`${BaseUrl}/parking/history`, { headers });
       console.log('Session History Response:', response.data);
-      return response.data;
+      return response.data.map(mapApiSessionToParkingSession);
     } catch (error) {
       console.error('Failed to fetch session history:', error);
       return rejectWithValue('Failed to fetch session history');
     }
   }
 );
-
 
 export const parkingSlice = createSlice({
   name: 'parking',
@@ -116,13 +153,11 @@ export const parkingSlice = createSlice({
     updateLiveDuration: (state, action: PayloadAction<string>) => {
       if (state.activeSession) {
         state.activeSession.liveDuration = action.payload;
-        // Potentially update feeSoFar here too based on duration
       }
     },
     clearActiveSession: (state) => {
-        state.activeSession = null;
-    }
-    // Add reducers for starting, ending sessions, fetching history
+      state.activeSession = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -155,13 +190,27 @@ export const parkingSlice = createSlice({
       .addCase(fetchSessionHistory.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(fetchSessionHistory.fulfilled, (state, action: PayloadAction<ParkingSession[]>) => {
+      .addCase(fetchSessionHistory.fulfilled, (state, action) => {
         state.isLoading = false;
         state.sessionHistory = action.payload;
       })
       .addCase(fetchSessionHistory.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string || 'Failed to fetch session history';
+      })
+      .addCase(endSession.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(endSession.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.lastEndedSession = action.payload; // Store the leave session data
+        state.activeSession = null; // Clear active session
+        state.error = null;
+      })
+      .addCase(endSession.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });
