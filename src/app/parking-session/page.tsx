@@ -169,10 +169,10 @@ const ParkingSessionPage: React.FC = () => {
           <InfoCard title="Vehicle Information" icon={<CarIconSmall />}>
             <DetailRow label="Plate Number" value={activeSession.data?.vehiclePlateNumber || '-'} />
             <DetailRow label="Vehicle Type" value={activeSession.data?.vehicleType || '-'} />
-            <DetailRow 
+            {/* <DetailRow 
               label="Entry Time" 
               value={activeSession ? `Parked at ${new Date(activeSession.data.entryTime).toLocaleTimeString()}` : '-'} 
-            />
+            /> */}
           </InfoCard>
 
         </div>

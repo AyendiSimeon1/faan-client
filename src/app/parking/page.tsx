@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AppLayout from '../../components/layout/AppLayout';
 import Button from '../../components/ui/Button';
@@ -22,17 +22,18 @@ const CarIllustration = () => (
   </div>
 );
 
-const AutoDebitLeavePage: React.FC = () => {
+// Create a separate component that uses useSearchParams
+const AutoDebitContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('Home');
-  const [isLoading, setIsLoading] = useState(false); // Start as false, trigger loading on action
+  const [isLoading, setIsLoading] = useState(false);
 
   // Simulate loading from query param or initial action for mockup visual
   useEffect(() => {
     if (searchParams.get('loading') === 'true') {
       setIsLoading(true);
-      const timer = setTimeout(() => setIsLoading(false), 3000); // Simulate loading time
+      const timer = setTimeout(() => setIsLoading(false), 3000);
       return () => clearTimeout(timer);
     }
   }, [searchParams]);
@@ -44,7 +45,7 @@ const AutoDebitLeavePage: React.FC = () => {
     setTimeout(() => {
       setIsLoading(false);
       alert("Payment successful! (Simulated)");
-      router.push('/home'); // Or to a payment success screen
+      router.push('/home');
     }, 2500);
   };
 
@@ -59,7 +60,7 @@ const AutoDebitLeavePage: React.FC = () => {
 
   const AutoDebitHeader = () => (
     <header className="bg-white p-4 sm:p-6 flex items-center justify-between relative border-b border-neutral-200">
-       <div className="flex-1"></div> {/* Spacer to center title if no back button */}
+       <div className="flex-1"></div>
       <h1 className="text-lg sm:text-xl font-semibold text-[#2C2C2E] text-center flex-1">Ready to Leave?</h1>
       <div className="flex-1 flex justify-end">
         <button onClick={() => router.back()} className="p-2">
@@ -74,7 +75,7 @@ const AutoDebitLeavePage: React.FC = () => {
       activeTab={activeTab}
       onTabChange={setActiveTab}
       customHeader={<AutoDebitHeader />}
-      hideHeader={false} // We use customHeader which is not hidden
+      hideHeader={false}
       containerClassName="max-w-2xl mx-auto flex flex-col items-center justify-center"
     >
       <div className="bg-white p-6 sm:p-8 rounded-xl shadow-xl w-full text-center">
@@ -122,6 +123,22 @@ const AutoDebitLeavePage: React.FC = () => {
         )}
       </div>
     </AppLayout>
+  );
+};
+
+// Loading fallback component
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
+
+// Main component with Suspense wrapper
+const AutoDebitLeavePage: React.FC = () => {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <AutoDebitContent />
+    </Suspense>
   );
 };
 

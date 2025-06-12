@@ -1,21 +1,43 @@
 // app/store.ts
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer from '../store/slice/auth'
-import uiReducer from '../store/slice/ui'
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage'; // localStorage
+import { combineReducers } from '@reduxjs/toolkit';
+import authReducer from '../store/slice/auth';
+import uiReducer from '../store/slice/ui';
 import parkingReducer from '../store/slice/parking';
 import carReducer from '../store/slice/car';
-// Import other reducers (payment, wallet) here when created
+
+// Persist configuration
+const persistConfig = {
+  key: 'root',
+  storage,
+  whitelist: ['auth', 'parking', 'car'], // Only persist these reducers
+  // blacklist: ['ui'], // Don't persist UI state (optional)
+};
+
+// Combine all reducers
+const rootReducer = combineReducers({
+  auth: authReducer,
+  ui: uiReducer,
+  parking: parkingReducer,
+  car: carReducer,
+});
+
+// Create persisted reducer
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: {
-    auth: authReducer,
-    ui: uiReducer,
-    parking: parkingReducer,
-    car: carReducer,
-    // payment: paymentReducer,
-    // wallet: walletReducer,
-  },
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+      },
+    }),
 });
+
+export const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

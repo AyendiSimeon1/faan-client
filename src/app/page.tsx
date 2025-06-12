@@ -28,7 +28,7 @@ const HomePage: React.FC = () => {
   }, [dispatch, user]);
 
   const handleScanQR = () => {
-    router.push('/scan-qr'); // Navigate to QR scanner page
+    router.push('/scan-car'); // Navigate to QR scanner page
   };
 
   const handleEnterPlate = () => {
@@ -58,6 +58,7 @@ const HomePage: React.FC = () => {
     >
       <div className="space-y-6 sm:space-y-8">
         {/* Scan QR Card */}
+        {/* <Link href="/scan-car" passHref> */}
         <div className="bg-blue-600 p-6 rounded-xl shadow-lg text-white flex flex-col sm:flex-row items-center justify-between cursor-pointer hover:bg-blue-700 transition-colors" onClick={handleScanQR}>
           <div className="mb-4 sm:mb-0 sm:mr-6">
             <h2 className="text-xl sm:text-2xl font-bold mb-1">Scan QR to Start Parking Session</h2>
@@ -66,11 +67,16 @@ const HomePage: React.FC = () => {
             </p>
           </div>
           <div className="flex items-center space-x-4">
+             {/* <a href="/qr-scan-page" target="_blank" rel="noopener noreferrer" className="block w-full max-w-2xl no-underline"> */}
+
             <PlaceholderQRCode />
             <div className="bg-green-500 p-3 rounded-full shadow-md">
               <ArrowRightIcon />
+                  {/* </a> */}
             </div>
+        
           </div>
+          {/* </Link> */}
         </div>
 
         {/* Quick Actions */}

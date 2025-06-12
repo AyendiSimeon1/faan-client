@@ -19,11 +19,7 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   guestDetails: { name?: string, plateNumber?: string, email?: string, phoneNumber?: string } | null;
-  emailVerification: {
-    isVerified: boolean;
-    verificationSent: boolean;
-    email: null;
-  };
+  emailVerification:any;
   passwordReset: {
     token: string | null;
     isValid: boolean;
@@ -59,7 +55,7 @@ export const loginUser = createAsyncThunk(
   async (credentials: { email: string, password_field: string }, { rejectWithValue }) => {
     try {
       console.log('Login Credentials:', credentials);
-      const response = await axios.post<LoginResponse>(`${BaseUrl}/auth/login`, credentials);
+      const response = await axios.post<any>(`${BaseUrl}/auth/login`, credentials);
 
       logSuccess({ 
         feature: 'Auth', 

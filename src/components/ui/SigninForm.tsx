@@ -1,8 +1,10 @@
 // In your form component (e.g., SignInForm.tsx)
 import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import Input from '../components/ui/Input'; // Adjust path
-import Button from '../components/ui/Button'; // Adjust path
+import Input from './Input';
+import Button from './Button';
+// import Input from '../components/ui/Input';
+// import Button from '../components/ui/Button';
 
 interface SignInFormData {
   email: string;

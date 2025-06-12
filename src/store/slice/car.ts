@@ -12,7 +12,7 @@ interface CarDetails {
 interface CarState {
   isLoading: boolean;
   error: string | null;
-  carDetails: CarDetails | null;
+  carDetails: any;
 }
 
 const initialState: CarState = {

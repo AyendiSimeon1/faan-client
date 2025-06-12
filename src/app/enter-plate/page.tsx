@@ -35,11 +35,22 @@ const EnterPlatePage: React.FC = () => {
   };
 
   const handleEndSession = () => {
-    if (plateNumber.length === plateLength) {
-      dispatch(endSession(plateNumber));
-    } else {
-      alert(`Please enter a complete ${plateLength}-character plate number.`);
-    }
+    // if (plateNumber.length === plateLength) {
+      
+    // } else {
+    //   alert(`Please enter a complete ${plateLength}-character plate number.`);
+    // }
+    try {
+      const result = dispatch(endSession(plateNumber)).unwrap();
+      console.log('Session ended successfully:', result);
+    
+    // Redirect to payment confirmation or summary page
+    router.push('/parking-leave-session');
+    }catch (error) {
+    console.error('Failed to end session:', error);
+
+  }
+    
   };
 
   return (
@@ -85,7 +96,7 @@ const EnterPlatePage: React.FC = () => {
           onClick={handleEndSession}
           fullWidth
           className="max-w-md text-base sm:text-lg py-3"
-          disabled={plateNumber.length !== plateLength || isLoading}
+          // disabled={plateNumber.length !== plateLength || isLoading}
         >
           {isLoading ? 'Ending Session...' : 'End Session'}
         </Button>
