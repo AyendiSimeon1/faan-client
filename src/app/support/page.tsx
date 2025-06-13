@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import AppLayout from '../../components/layout/AppLayout';
 import ScreenHeader from '../../components/ui/ScreenHeader';
 import { LiveChatIcon, FaqIcon } from '@/components/ui/Icon';

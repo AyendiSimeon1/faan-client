@@ -21,23 +21,24 @@ const ScreenHeader: React.FC<ScreenHeaderProps> = ({
   titleClassName = '',
 }) => {
   return (
-    <header className={`flex items-center justify-between px-16 h-[80px] bg-white border-b border-neutral-100 ${className}`}>
-      <div className="flex items-center space-x-4 min-w-[100px]">
+    <header className={`flex items-center justify-between px-4 md:px-16 h-[64px] md:h-[80px] bg-white border-b border-neutral-100 ${className}`}>
+      <div className="flex items-center space-x-2 md:space-x-4 min-w-[40px] md:min-w-[100px]">
         {showBackButton && onBack && (
-          <button 
-            onClick={onBack} 
-            className="p-3 hover:bg-neutral-50 rounded-lg transition-colors text-[#2C2C2E] focus:outline-none"
+          <button
+            onClick={onBack}
+            className="p-2 md:p-3 hover:bg-neutral-50 rounded-lg transition-colors text-[#2C2C2E] focus:outline-none"
+            aria-label="Go back" // Added for accessibility
           >
             <BackArrowIcon />
           </button>
         )}
       </div>
       {title && (
-        <h1 className={`text-2xl font-semibold text-[#2C2C2E] text-center flex-grow ${titleClassName}`}>
+        <h1 className={`text-lg md:text-2xl font-semibold text-[#2C2C2E] text-center flex-grow truncate ${titleClassName}`}>
           {title}
         </h1>
       )}
-      <div className="flex items-center justify-end space-x-4 min-w-[100px]">
+      <div className="flex items-center justify-end space-x-2 md:space-x-4 min-w-[40px] md:min-w-[100px]">
         {rightContent}
       </div>
     </header>

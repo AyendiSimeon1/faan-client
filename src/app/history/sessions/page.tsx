@@ -22,6 +22,7 @@ interface ParkingSession {
   entryTime: string;
   exitTime?: string;
   parkingLocationId: string;
+  parkingSessionId?: any;
   qrCodeId: string;
   status: string;
   rateDetails: string;
@@ -31,16 +32,12 @@ interface ParkingSession {
   calculatedFee?: number;
   durationInMinutes?: number;
   paymentId?: PaymentDetails;
+  amount?: any;
 }
 
 interface SessionsResponse {
   status: string;
-  data: {
-    sessions: ParkingSession[];
-    total: number;
-    currentPage: number;
-    totalPages: number;
-  };
+  data: ParkingSession[]; // Fixed: Direct array, not nested object
 }
 
 const formatDateTime = (dateString: string) => {
@@ -56,31 +53,48 @@ const formatDateTime = (dateString: string) => {
   return `${day}/${month}/${year}, ${displayHours}:${minutes}${ampm}`;
 };
 
-const formatSessionDetails = (session: ParkingSession) => {
+const formatSessionDetails = (session: any) => {
   const entryTime = formatDateTime(session.entryTime);
   const exitTime = session.exitTime ? formatDateTime(session.exitTime) : 'Ongoing';
   return `${entryTime} - ${exitTime}`;
 };
 
+// Fixed: Uncommented and improved getLocationName function
 const getLocationName = (locationId: string) => {
   // You might want to maintain a mapping of location IDs to names
   // For now, we'll use a simple transformation
-  if (locationId.includes('qr_randomString')) {
-    return 'Parking Location'; // Default name
+  if (!locationId) return 'Unknown Location';
+  
+  // Handle different location ID formats
+  if (locationId.includes('qr_')) {
+    return 'Parking Location'; // Default name for QR-based locations
   }
-  return locationId.replace('loc_', '').replace(/_/g, ' ');
+  
+  // Transform location ID to readable name
+  return locationId
+    .replace('loc_', '')
+    .replace(/_/g, ' ')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ') || 'Parking Location';
 };
 
-const groupSessionsByDate = (sessions: ParkingSession[]) => {
+const groupSessionsByDate = (sessions: ParkingSession) => {
   const groups: { [key: string]: ParkingSession[] } = {};
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
   
+   if (!Array.isArray(sessions)) {
+      return groups;
+    }
+
+
   sessions.forEach(session => {
     const sessionDate = new Date(session.createdAt);
     const isToday = sessionDate.toDateString() === today.toDateString();
     const isYesterday = sessionDate.toDateString() === yesterday.toDateString();
+    
     
     let groupKey: string;
     if (isToday) {
@@ -117,16 +131,34 @@ const ParkingHistorySessionPage: React.FC = () => {
   }, [dispatch]);
 
   console.log('Past Sessions:', pastSessions);
-  console.log(' Session history:', sessionHistory);
+  console.log('Session history:', sessionHistory);
+
+  // Fixed: Proper data structure handling and search logic
   const filteredAndGroupedSessions = useMemo(() => {
-    if (!sessionHistory?.data?.sessions) {
+    // Check if sessionHistory exists and has data array
+    if (!sessionHistory?.data || !Array.isArray(sessionHistory.data)) {
       return {};
     }
     
-    const filtered = sessionHistory.data.sessions.filter((session: { parkingLocationId: string; vehiclePlateNumber: string; }) =>
-      getLocationName(session.parkingLocationId).toLowerCase().includes(searchTerm.toLowerCase()) ||
-      session.vehiclePlateNumber.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = sessionHistory.data.filter((session: ParkingSession) => {
+      const searchLower = searchTerm.toLowerCase().trim();
+      
+      // If no search term, show all sessions
+      if (!searchLower) return true;
+      
+      // Safe check for plate number
+      const plateMatches = session.vehiclePlateNumber 
+        ? session.vehiclePlateNumber.toLowerCase().includes(searchLower)
+        : false;
+        
+      // Safe check for location
+      const locationMatches = session.parkingLocationId
+        ? getLocationName(session.parkingLocationId).toLowerCase().includes(searchLower)
+        : false;
+        
+      return plateMatches || locationMatches;
+    });
+    
     return groupSessionsByDate(filtered);
   }, [sessionHistory, searchTerm]);
 
@@ -162,6 +194,10 @@ const ParkingHistorySessionPage: React.FC = () => {
     );
   }
 
+  // Check if we have any sessions at all
+  const hasAnySessions = sessionHistory?.data && Array.isArray(sessionHistory.data) && sessionHistory.data.length > 0;
+  const hasFilteredSessions = Object.values(filteredAndGroupedSessions).some(arr => arr.length > 0);
+
   return (
     <AppLayout
       activeTab={activeTab}
@@ -194,62 +230,79 @@ const ParkingHistorySessionPage: React.FC = () => {
       </div>
 
       {/* Session List */}
-      {Object.entries(filteredAndGroupedSessions).map(([groupName, sessions]) => (
-        sessions.length > 0 && (
-          <div key={groupName} className="mb-10">
-            <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-4">{groupName}</h2>
-            <div className="space-y-4">
-              {sessions.map(session => (
-                <div
-                  key={session._id}
-                  className="bg-white rounded-xl shadow-sm px-6 py-5 flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0">
-                      <ParkingLocationIcon />
+      {hasFilteredSessions ? (
+        Object.entries(filteredAndGroupedSessions).map(([groupName, sessions]) => (
+          sessions.length > 0 && (
+            <div key={groupName} className="mb-10">
+              <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-4">{groupName}</h2>
+              <div className="space-y-4">
+                {sessions.map(session => (
+                  <div
+                    key={session._id}
+                    className="bg-white rounded-xl shadow-sm px-6 py-5 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0">
+                        <ParkingLocationIcon />
+                      </div>
+                      <div>
+                        <p className="text-lg font-medium text-[#2C2C2E]">
+                          {/* {getLocationName(session.parkingLocationId)} */}
+                          {session.parkingSessionId.vehicleType}
+                        </p>
+                        <p className="text-sm text-[#8A8A8E]">
+                          Entry Time: {formatDateTime(session.parkingSessionId.entryTime)}
+                        </p>
+                        <p className="text-sm text-[#8A8A8E]">
+                          Exit Time: {session.parkingSessionId.exitTime ? formatDateTime(session.parkingSessionId.exitTime) : 'Ongoing'}
+                        </p>
+                        <p className="text-xs text-[#8A8A8E] mt-1">
+                          {session.parkingSessionId.vehiclePlateNumber || 'No plate number'} • {session.rateDetails}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-lg font-medium text-[#2C2C2E]">
-                        {getLocationName(session.parkingLocationId)}
+                    <div className="text-right">
+                      <p className="text-lg font-semibold text-[#FDB813] mb-1">
+                        -₦{session.amount || session.paymentId?.amount || 0}
                       </p>
-                      <p className="text-sm text-[#8A8A8E]">
-                        {formatSessionDetails(session)}
+                      <p className="text-xs text-[#8A8A8E] mb-2">
+                        {session.status === 'completed' ? 'Completed' : 'Ongoing'}
                       </p>
-                      <p className="text-xs text-[#8A8A8E] mt-1">
-                        {session.vehiclePlateNumber} • {session.rateDetails}
-                      </p>
+                      <button
+                        onClick={() => alert(`Download receipt for ${getLocationName(session.parkingLocationId)}`)}
+                        className="p-2 hover:bg-neutral-100 rounded-full"
+                      >
+                        <DownloadReceiptIcon />
+                      </button>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-lg font-semibold text-[#FDB813] mb-1">
-                      -₦{session.calculatedFee || session.paymentId?.amount || 0}
-                    </p>
-                    <p className="text-xs text-[#8A8A8E] mb-2">
-                      {session.status === 'completed' ? 'Completed' : 'Ongoing'}
-                    </p>
-                    <button
-                      onClick={() => alert(`Download receipt for ${getLocationName(session.parkingLocationId)}`)}
-                      className="p-2 hover:bg-neutral-100 rounded-full"
-                    >
-                      <DownloadReceiptIcon />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )
-      ))}
-      {Object.values(filteredAndGroupedSessions).every(arr => arr.length === 0) && (
+          )
+        ))
+      ) : (
         <div className="text-center py-16">
-          {pastSessions?.data?.sessions?.length === 0 ? (
+          {!hasAnySessions ? (
             <div>
               <div className="text-6xl mb-4">🚗</div>
               <p className="text-lg text-neutral-500 mb-2">No parking sessions yet</p>
               <p className="text-sm text-neutral-400">Your parking history will appear here</p>
             </div>
           ) : (
-            <p className="text-lg text-neutral-500">No sessions match your search.</p>
+            <div>
+              <div className="text-6xl mb-4">🔍</div>
+              <p className="text-lg text-neutral-500 mb-2">No sessions match your search</p>
+              <p className="text-sm text-neutral-400">Try adjusting your search terms</p>
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="mt-4 px-4 py-2 bg-[#FDB813] text-white rounded-lg hover:bg-[#FDB813]/90"
+                >
+                  Clear Search
+                </button>
+              )}
+            </div>
           )}
         </div>
       )}

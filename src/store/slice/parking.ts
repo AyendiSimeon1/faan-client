@@ -141,6 +141,7 @@ export const endSession = createAsyncThunk(
   async (plateNumber: string, { rejectWithValue }) => {
     try {
       const accessToken = localStorage.getItem('accessToken');
+      console.log('yes the access token', accessToken);
       if (!accessToken) {
         return rejectWithValue('No access token found');
       }
@@ -182,7 +183,7 @@ export const fetchSessionHistory = createAsyncThunk(
       const headers = {
         Authorization: `Bearer ${accessToken}`
       };
-      const response = await axios.get(`${BaseUrl}/parking/history`, { headers }); 
+      const response = await axios.get(`${BaseUrl}/payments/history`, { headers }); 
       console.log('Session History Response:', response.data);
       return response.data;
     } catch (error) {

@@ -20,6 +20,8 @@ const HomePage: React.FC = () => {
   const { activeSession, isLoading: parkingLoading } = useAppSelector(state => state.parking);
   const { user } = useAppSelector(state => state.auth);
 
+  console.log('i am the user', user);
+
   useEffect(() => {
     dispatch(setActiveBottomTab('Home')); // Set active tab for this page
     // if(user){ // Only fetch if user is logged in

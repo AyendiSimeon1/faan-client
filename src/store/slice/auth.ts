@@ -98,7 +98,7 @@ export const signupUser = createAsyncThunk(
             
             // Set email for verification and send verification email
             dispatch(authSlice.actions.setEmailForVerification(userData.email));
-            dispatch(sendVerificationEmail(userData.email));
+            // dispatch(sendVerificationEmail(userData.email));
             
             return response.data;
         } catch (error: any) {
@@ -272,9 +272,10 @@ export const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action: PayloadAction<LoginResponse>) => {
+      .addCase(loginUser.fulfilled, (state, action: PayloadAction<any>) => {
+        console.log('i am the payload', action.payload);
         state.isLoading = false;
-        state.user = action.payload.user;
+        state.user = action.payload.data.user;
         state.token = action.payload.token;
         state.isAuthenticated = true;
         state.error = null;
@@ -297,16 +298,16 @@ export const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
     })
-    .addCase(signupUser.fulfilled, (state, action: PayloadAction<LoginResponse>) => {
+    .addCase(signupUser.fulfilled, (state, action: PayloadAction<any>) => {
         state.isLoading = false;
-        state.user = action.payload.user;
+        state.user = action.payload;
         state.token = action.payload.token;
-        state.isAuthenticated = true;
+        state.isAuthenticated = false;
         state.error = null;
         logSuccess({ 
             feature: 'Auth', 
             action: 'Signup State Updated', 
-            data: { userId: action.payload.user.id } 
+          
         });
     })
   .addCase(signupUser.rejected, (state, action) => {

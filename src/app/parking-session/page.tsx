@@ -13,14 +13,23 @@ const ParkingSessionPage: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('Home');
+  const [isClient, setIsClient] = useState(false);
   const { activeSession, isLoading, error } = useAppSelector((state) => state.parking);
+  
   console.log('an active sessions', activeSession);
 
+  // Handle client-side mounting
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+    
     if (!activeSession?.data) {
       router.replace('/parking'); // Redirect if no active session
     }
-  }, [activeSession, router]);
+  }, [activeSession, router, isClient]);
 
   const InfoCard: React.FC<{ 
     title: string; 
@@ -50,7 +59,9 @@ const ParkingSessionPage: React.FC = () => {
       <span className="text-neutral-600 font-medium">{label}</span>
       <span className={`${valueClassName} ${important ? 'text-lg' : ''}`}>{value}</span>
     </div>
-  );  const LiveTimer: React.FC = () => {
+  );
+
+  const LiveTimer: React.FC = () => {
     const [duration, setDuration] = useState('00:00:00');
 
     useEffect(() => {
@@ -81,7 +92,7 @@ const ParkingSessionPage: React.FC = () => {
       const interval = setInterval(updateDuration, 1000);
 
       return () => clearInterval(interval);
-    }, [activeSession?.data?.entryTime]);
+    }, [activeSession?.data?.entryTime, dispatch]);
 
     return (
       <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
@@ -101,7 +112,7 @@ const ParkingSessionPage: React.FC = () => {
   // Get live fee calculation
   const parkingFee = useParkingFee(
     activeSession?.data?.vehicleType || VEHICLE_TYPES.REGULAR,
-    activeSession?.data?.entryTime || new Date(),
+    activeSession?.data?.entryTime ? new Date(activeSession.data.entryTime) : new Date(),
     30000 // Update every 30 seconds
   );
 
@@ -131,6 +142,30 @@ const ParkingSessionPage: React.FC = () => {
       </div>
     </div>
   );
+
+  // Don't render until client-side mounting is complete
+  if (!isClient) {
+    return null;
+  }
+
+  // Show loading state if still loading or no active session
+  if (isLoading || !activeSession?.data) {
+    return (
+      <AppLayout
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        headerProps={{ onBack: () => router.back(), showBackButton: true }}
+        containerClassName="max-w-4xl mx-auto"
+      >
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-[#FDB813] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-neutral-600">Loading parking session...</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout
@@ -165,21 +200,20 @@ const ParkingSessionPage: React.FC = () => {
             <div className="mt-4 text-sm text-neutral-600">
               Started at {activeSession.data?.entryTime ? new Date(activeSession.data.entryTime).toLocaleString() : '-'}
             </div>
-          </div>          {/* Vehicle Information */}
+          </div>
+
+          {/* Vehicle Information */}
           <InfoCard title="Vehicle Information" icon={<CarIconSmall />}>
             <DetailRow label="Plate Number" value={activeSession.data?.vehiclePlateNumber || '-'} />
             <DetailRow label="Vehicle Type" value={activeSession.data?.vehicleType || '-'} />
-            {/* <DetailRow 
-              label="Entry Time" 
-              value={activeSession ? `Parked at ${new Date(activeSession.data.entryTime).toLocaleTimeString()}` : '-'} 
-            /> */}
           </InfoCard>
 
         </div>
 
         {/* Right Column - Payment & Status */}
         <div className="space-y-6">
-            {/* Current Fee Card - Highlighted */}          <InfoCard title="Current Fee" icon={<MoneyIcon />} highlight={true}>
+          {/* Current Fee Card - Highlighted */}
+          <InfoCard title="Current Fee" icon={<MoneyIcon />} highlight={true}>
             <DetailRow 
               label="Amount Due" 
               value={parkingFee.formattedFee}
@@ -188,7 +222,7 @@ const ParkingSessionPage: React.FC = () => {
             />
             <DetailRow 
               label="Vehicle Type Rate" 
-              value={activeSession?.data?.vehicleType === VEHICLE_TYPES.SUV_BUS ? "SUV/Bus Rate" : "Regular Rate"}
+              value={activeSession.data?.vehicleType === VEHICLE_TYPES.SUV_BUS ? "SUV/Bus Rate" : "Regular Rate"}
               valueClassName="text-neutral-600"
             />
             <div className="pt-3">
@@ -200,7 +234,9 @@ const ParkingSessionPage: React.FC = () => {
               </button>
             </div>
             {showRateDetails && <RateDetails />}
-          </InfoCard>          {/* Session Status */}
+          </InfoCard>
+
+          {/* Session Status */}
           <InfoCard title="Session Status">
             <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-200">
               <div className="flex items-center space-x-3">
@@ -218,7 +254,6 @@ const ParkingSessionPage: React.FC = () => {
           {/* Action Buttons */}
           <div className="space-y-3">
             <Button 
-           
               fullWidth 
               onClick={() => router.push('/parking/leave-session')}
               className="text-lg py-4 font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
@@ -227,7 +262,6 @@ const ParkingSessionPage: React.FC = () => {
             </Button>
             
             <Button 
-            
               fullWidth 
               onClick={() => router.push('/parking/extend-session')}
               className="text-base py-3 border-2 hover:bg-neutral-50"
