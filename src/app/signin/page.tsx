@@ -17,26 +17,24 @@ interface SignInFormData {
 
 const SignInPage: React.FC = () => {
   const { register, handleSubmit, formState: { errors } } = useForm<SignInFormData>({
-    defaultValues: {
-      email: "joymiracle@gmail.com" // Pre-filled from mockup
-    }
+  
   });
   const router = useRouter();
-    const dispatch = useAppDispatch();
-    const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+  const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
 
-    console.log('isAuthenticated:', isAuthenticated);
+  console.log('isAuthenticated:', isAuthenticated);
   
-    const onSubmit: SubmitHandler<any> = (data) => {
-      dispatch(loginUser(data));
-    };
-     console.log('isAuthenticated:', isAuthenticated);
-  
-    useEffect(() => {
-      if (isAuthenticated) {
-        router.push('/');
-      }
-    }, [isAuthenticated, router]);
+  const onSubmit: SubmitHandler<any> = (data) => {
+    dispatch(loginUser(data));
+  };
+  console.log('isAuthenticated:', isAuthenticated);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/');
+    }
+  }, [isAuthenticated, router]);
 
   return (
     <AuthPageLayout showLogo>
@@ -70,10 +68,22 @@ const SignInPage: React.FC = () => {
             <p className="text-sm font-medium text-[#FDB813] hover:text-[#E0A00A]">Forgot Password?</p>
           </Link>
         </div>
-        <Button type="submit" variant="primary" fullWidth>
-          Sign In
+        <Button 
+          type="submit" 
+          variant="primary" 
+          fullWidth
+          disabled={isLoading}
+        >
+          {isLoading ? 'Signing In...' : 'Sign In'}
         </Button>
-        <Button type="button" variant="link" fullWidth className="text-[#34C759] !font-semibold" onClick={() => router.push('/guest-details')}>
+        <Button 
+          type="button" 
+          variant="link" 
+          fullWidth 
+          className="text-[#34C759] !font-semibold" 
+          onClick={() => router.push('/guest-details')}
+          disabled={isLoading}
+        >
           Continue as Guest
         </Button>
       </form>
