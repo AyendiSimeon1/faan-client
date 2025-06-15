@@ -407,6 +407,9 @@ const ScanCarPage = () => {
             <div className="space-y-2">
               <p><span className="font-medium">Plate Number:</span> {carDetails.data.plateNumber}</p>
               <p><span className="font-medium">Type:</span> {carDetails.data.carDetails.type}</p>
+              <p><span className="font-medium">Make:</span> {carDetails.data.make}</p>
+              <p><span className="font-medium">Plate Number:</span> {carDetails.data.color}</p>
+              <p><span className="font-medium">Model:</span> {carDetails.data.carDetails.model}</p>
             </div>
           </div>
         )}
