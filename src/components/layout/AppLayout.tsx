@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 import ScreenHeader from '../ui/ScreenHeader';
 
 interface AppLayoutProps {
@@ -23,11 +24,11 @@ const AppLayout: React.FC<AppLayoutProps> = ({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const navigationItems = [
-    { key: 'Home', label: 'Dashboard', icon: '🏠' },
-    { key: 'Wallet', label: 'Wallet', icon: '💳' },
-    { key: 'History', label: 'History', icon: '📊' },
-    { key: 'Profile', label: 'Profile', icon: '👤' },
-  ];
+  { key: 'Home', label: 'Dashboard', icon: '🏠', path: '/home' },
+  { key: 'Wallet', label: 'Wallet', icon: '💳', path: '/wallet' },
+  { key: 'History', label: 'History', icon: '📊', path: '/history/sessions' },
+  { key: 'Profile', label: 'Profile', icon: '👤', path: '/profile' },
+];
 
   return (
     <div className="min-h-screen flex bg-neutral-50 selection:bg-[#FDB813] selection:text-black">
@@ -53,9 +54,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({
         <nav className="flex-1 p-4">
           <ul className="space-y-2">
             {navigationItems.map((item) => (
-              <li key={item.key}>
-                <button
-                  onClick={() => onTabChange(item.key as 'Home' | 'Wallet' | 'History' | 'Profile')}
+             <li key={item.key}>
+              <Link href={item.path}>
+                <p
                   className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                     activeTab === item.key
                       ? 'bg-[#FDB813] text-black font-medium shadow-sm'
@@ -66,8 +67,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({
                   {!sidebarCollapsed && (
                     <span className="font-medium">{item.label}</span>
                   )}
-                </button>
-              </li>
+                </p>
+              </Link>
+            </li>
             ))}
           </ul>
         </nav>

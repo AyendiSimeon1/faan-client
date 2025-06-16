@@ -317,7 +317,6 @@ const ScanCarPage = () => {
             Car details captured successfully! Redirecting...
           </div>
         )}
-
         <div className="relative w-full max-w-md aspect-video bg-black rounded-lg overflow-hidden mb-4">
           {!cameraActive && (
             <div className="absolute inset-0 flex items-center justify-center text-white">
@@ -407,8 +406,8 @@ const ScanCarPage = () => {
             <div className="space-y-2">
               <p><span className="font-medium">Plate Number:</span> {carDetails.data.plateNumber}</p>
               <p><span className="font-medium">Type:</span> {carDetails.data.carDetails.type}</p>
-              <p><span className="font-medium">Make:</span> {carDetails.data.make}</p>
-              <p><span className="font-medium">Plate Number:</span> {carDetails.data.color}</p>
+              <p><span className="font-medium">Make:</span> {carDetails.data.carDetails.make}</p>
+              {/* <p><span className="font-medium">Plate Number:</span> {carDetails.data.color}</p> */}
               <p><span className="font-medium">Model:</span> {carDetails.data.carDetails.model}</p>
             </div>
           </div>
