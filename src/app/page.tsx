@@ -16,6 +16,7 @@ const HomePage: React.FC = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('Home');
   const [sessionStatus, setSessionStatus] = useState<'inactive' | 'active' | 'pending'>('inactive'); // Example state
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   const { activeSession, isLoading: parkingLoading } = useAppSelector(state => state.parking);
   const { user } = useAppSelector(state => state.auth);
@@ -23,11 +24,40 @@ const HomePage: React.FC = () => {
   console.log('i am the user', user);
 
   useEffect(() => {
-    dispatch(setActiveBottomTab('Home')); // Set active tab for this page
-    // if(user){ // Only fetch if user is logged in
-    //     dispatch(fetchActiveSession());
-    // }
-  }, [dispatch, user]);
+    // Check for token on component mount
+    const checkAuthentication = () => {
+      const token = localStorage.getItem('token');
+      console.log('i am the token', token);
+      
+      if (!token) {
+        // No token found, redirect to login
+        router.push('/signin');
+        return;
+      }
+      
+      // Token exists, continue with normal flow
+      setIsCheckingAuth(false);
+      dispatch(setActiveBottomTab('Home')); // Set active tab for this page
+      
+      // if(user){ // Only fetch if user is logged in
+      //     dispatch(fetchActiveSession());
+      // }
+    };
+
+    checkAuthentication();
+  }, [dispatch, router, user]);
+
+  // Show loading or nothing while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleScanQR = () => {
     router.push('/scan-car'); // Navigate to QR scanner page
@@ -121,9 +151,9 @@ const HomePage: React.FC = () => {
             <Button variant="primary" fullWidth onClick={handleScanQR}>
                 Scan QR
             </Button>
-            <Button variant="secondary" fullWidth onClick={handleEnterPlate}>
+            {/* <Button variant="secondary" fullWidth onClick={handleEnterPlate}>
                 Enter plate number
-            </Button>
+            </Button> */}
         </div>
       </div>
     </AppLayout>
