@@ -24,7 +24,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const navigationItems = [
-  { key: 'Home', label: 'Dashboard', icon: '🏠', path: '/home' },
+  { key: 'Home', label: 'Dashboard', icon: '🏠', path: '/' },
   { key: 'Wallet', label: 'Wallet', icon: '💳', path: '/wallet' },
   { key: 'History', label: 'History', icon: '📊', path: '/history/sessions' },
   { key: 'Profile', label: 'Profile', icon: '👤', path: '/profile' },
