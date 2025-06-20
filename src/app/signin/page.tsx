@@ -1,8 +1,8 @@
 "use client";
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import AuthPageLayout from '@/components/layout/AuthLayout';
@@ -15,26 +15,33 @@ interface SignInFormData {
   password_field: string; // Renamed to avoid potential conflicts
 }
 
-const SignInPage: React.FC = () => {
+// Component that uses useSearchParams - needs to be wrapped in Suspense
+const SignInForm: React.FC = () => {
   const { register, handleSubmit, formState: { errors } } = useForm<SignInFormData>({
   
   });
   const router = useRouter();
+  const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
 
+  // Get the return URL from query parameters
+  const returnUrl = searchParams.get('returnUrl') || '/';
+
   console.log('isAuthenticated:', isAuthenticated);
+  console.log('returnUrl:', returnUrl);
   
-  const onSubmit: SubmitHandler<any> = (data) => {
+  const onSubmit: SubmitHandler<any> =  (data) => {
     dispatch(loginUser(data));
   };
-  console.log('isAuthenticated:', isAuthenticated);
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/');
+      // Redirect to the return URL or home page
+      console.log('Redirecting authenticated user to:', returnUrl);
+      router.push(returnUrl);
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, returnUrl]);
 
   return (
     <AuthPageLayout showLogo>
@@ -43,6 +50,11 @@ const SignInPage: React.FC = () => {
         <p className="text-sm text-[#8A8A8E]">
           Sign in to track sessions and enjoy faster exits 🚶 <span role="img" aria-label="key">🔑</span>
         </p>
+        {returnUrl !== '/' && (
+          <p className="text-xs text-blue-600 mt-2">
+            Please log in to continue to your requested page
+          </p>
+        )}
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <Input<SignInFormData>
@@ -81,13 +93,36 @@ const SignInPage: React.FC = () => {
           variant="link" 
           fullWidth 
           className="text-[#34C759] !font-semibold" 
-          onClick={() => router.push('/guest-details')}
+          onClick={() => {
+            // For guest users, also consider the return URL
+            const guestUrl = returnUrl !== '/' ? `/guest-details?returnUrl=${encodeURIComponent(returnUrl)}` : '/guest-details';
+            router.push(guestUrl);
+          }}
           disabled={isLoading}
         >
           Continue as Guest
         </Button>
       </form>
     </AuthPageLayout>
+  );
+};
+
+// Loading component for Suspense fallback
+const SignInLoading: React.FC = () => (
+  <AuthPageLayout showLogo>
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <p className="text-gray-600">Loading...</p>
+    </div>
+  </AuthPageLayout>
+);
+
+// Main component with Suspense wrapper
+const SignInPage: React.FC = () => {
+  return (
+    <Suspense fallback={<SignInLoading />}>
+      <SignInForm />
+    </Suspense>
   );
 };
 

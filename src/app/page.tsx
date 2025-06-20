@@ -24,16 +24,17 @@ const HomePage: React.FC = () => {
   console.log('i am the user', user);
 
   useEffect(() => {
-    // Check for token on component mount
+    if (typeof window === 'undefined') return;
     const checkAuthentication = () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken');
       console.log('i am the token', token);
       
-      if (!token) {
-        // No token found, redirect to login
-        router.push('/signin');
-        return;
-      }
+      try {
+  const token = localStorage.getItem('accessToken');
+  console.log('Retrieved token:', token);
+} catch (error) {
+  console.log('Error accessing localStorage:', error);
+}
       
       // Token exists, continue with normal flow
       setIsCheckingAuth(false);
