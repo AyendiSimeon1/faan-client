@@ -140,15 +140,15 @@ export const endSession = createAsyncThunk(
   'parking/endSession',
   async (plateNumber: string, { rejectWithValue }) => {
     try {
-      const accessToken = localStorage.getItem('accessToken');
-      console.log('yes the access token', accessToken);
-      if (!accessToken) {
-        return rejectWithValue('No access token found');
-      }
+      // const accessToken = localStorage.getItem('accessToken');
+      // console.log('yes the access token', accessToken);
+      // if (!accessToken) {
+      //   return rejectWithValue('No access token found');
+      // }
 
-      const headers = {
-        Authorization: `Bearer ${accessToken}`,
-      };
+      // const headers = {
+      //   Authorization: `Bearer ${accessToken}`,
+      // };
 
       const payload = {
         paymentMethodId: 'ghjghgkjgjh', // Default payment method ID
@@ -158,7 +158,7 @@ export const endSession = createAsyncThunk(
       const response = await axios.put(
         `${BaseUrl}/parking/session/${plateNumber}/end`,
         payload,
-        { headers }
+        // { headers }
       );
       console.log('the data', response.data);
       return response.data as EndSessionResponse;

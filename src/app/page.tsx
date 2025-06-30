@@ -30,11 +30,11 @@ const HomePage: React.FC = () => {
       console.log('i am the token', token);
       
       try {
-  const token = localStorage.getItem('accessToken');
-  console.log('Retrieved token:', token);
-} catch (error) {
-  console.log('Error accessing localStorage:', error);
-}
+        const token = localStorage.getItem('accessToken');
+        console.log('Retrieved token:', token);
+      } catch (error) {
+        console.log('Error accessing localStorage:', error);
+      }
       
       // Token exists, continue with normal flow
       setIsCheckingAuth(false);

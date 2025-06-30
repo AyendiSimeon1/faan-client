@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import ScreenHeader from '../ui/ScreenHeader';
+import SidebarGateStatus from './SidebarGateStatus';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -72,6 +73,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
             </li>
             ))}
           </ul>
+          {!sidebarCollapsed && <SidebarGateStatus />}
         </nav>
 
         {!sidebarCollapsed && (
