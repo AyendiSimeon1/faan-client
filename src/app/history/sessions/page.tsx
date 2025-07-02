@@ -123,7 +123,7 @@ const ParkingHistorySessionPage: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { pastSessions, sessionHistory, isLoading } = useAppSelector(state => state.parking);
-  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('History');
+  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('History');
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {

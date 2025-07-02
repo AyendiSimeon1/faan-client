@@ -14,7 +14,7 @@ import { setActiveBottomTab } from '@/store/slice/ui';
 const HomePage: React.FC = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('Home');
+  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Home');
   const [sessionStatus, setSessionStatus] = useState<'inactive' | 'active' | 'pending'>('inactive'); // Example state
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 

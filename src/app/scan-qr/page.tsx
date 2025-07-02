@@ -7,7 +7,7 @@ import { CloseIcon, CameraIcon, UploadIcon } from '@/components/ui/Icon';
 
 const ScanQrPage: React.FC = () => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('Home');
+  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Home');
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState<string | null>(null);
 

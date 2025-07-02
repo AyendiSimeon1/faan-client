@@ -22,7 +22,7 @@ const paymentMethods: PaymentMethod[] = [
 
 const ChoosePaymentMethodPage: React.FC = () => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('Wallet');
+  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Wallet');
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(paymentMethods[0].id);
 
   const handleProceed = () => {

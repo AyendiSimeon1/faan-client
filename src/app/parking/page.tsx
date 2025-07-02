@@ -26,7 +26,7 @@ const CarIllustration = () => (
 const AutoDebitContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('Home');
+  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Home');
   const [isLoading, setIsLoading] = useState(false);
 
   // Simulate loading from query param or initial action for mockup visual

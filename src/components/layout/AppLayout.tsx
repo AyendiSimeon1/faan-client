@@ -5,8 +5,8 @@ import SidebarGateStatus from './SidebarGateStatus';
 
 interface AppLayoutProps {
   children: React.ReactNode;
-  activeTab: 'Home' | 'Wallet' | 'History' | 'Profile';
-  onTabChange: (tabKey: 'Home' | 'Wallet' | 'History' | 'Profile') => void;
+  activeTab: 'Home' | 'Wallet' | 'History' | 'Payments';
+  onTabChange: (tabKey: 'Home' | 'Wallet' | 'History' | 'Payments') => void;
   headerProps?: any;
   customHeader?: React.ReactNode;
   hideHeader?: boolean;
@@ -28,7 +28,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
   { key: 'Home', label: 'Dashboard', icon: '🏠', path: '/' },
   { key: 'Wallet', label: 'Wallet', icon: '💳', path: '/wallet' },
   { key: 'History', label: 'History', icon: '📊', path: '/history/sessions' },
-  { key: 'Profile', label: 'Profile', icon: '👤', path: '/profile' },
+  { key: 'Payments', label: 'Payments', icon: '👤', path: '/history/payments' },
 ];
 
   return (
@@ -104,7 +104,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
           {navigationItems.map((item) => (
             <li key={`${item.key}-mobile`} className="flex-1">
               <button
-                onClick={() => onTabChange(item.key as 'Home' | 'Wallet' | 'History' | 'Profile')}
+                onClick={() => onTabChange(item.key as 'Home' | 'Wallet' | 'History' | 'Payments')}
                 className={`w-full h-full flex flex-col items-center justify-center gap-1 transition-colors duration-200 ${
                   activeTab === item.key
                     ? 'text-[#FDB813]'

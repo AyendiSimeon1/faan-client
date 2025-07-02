@@ -7,7 +7,7 @@ import { CloseIcon, PaidByAgentIllustration, GreenCheckSmallIcon } from '@/compo
 
 const SessionPaidByAgentPage: React.FC = () => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('Home');
+  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Home');
 
   // Example session data
   const sessionDetails = {

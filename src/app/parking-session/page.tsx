@@ -12,7 +12,7 @@ import { updateLiveDuration } from '@/store/slice/parking';
 const ParkingSessionPage: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('Home');
+  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Home');
   const [isClient, setIsClient] = useState(false);
   const { activeSession, isLoading, error } = useAppSelector((state) => state.parking);
   

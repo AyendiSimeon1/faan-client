@@ -18,7 +18,7 @@ const LeaveSessionPageContent = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams(); // This hook is now inside a client-only component rendered within Suspense
-  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('Home');
+  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Home');
   const [pageState, setPageState] = useState<LeaveSessionState>('confirm');
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [transactionDetails, setTransactionDetails] = useState<any>(null);
@@ -27,7 +27,11 @@ const LeaveSessionPageContent = () => {
   const [paystackPopInstance, setPaystackPopInstance] = useState<any>(null);
 
   const { endedSession, paymentResult, isLoading, error } = useAppSelector((state) => state.parking);
-
+  const p = useAppSelector((state) => state.parking);
+  console.log('Parking state:', p);
+  // Always use the latest paymentResult from endedSession if available
+  const latestPaymentResult = endedSession?.paymentResult || paymentResult;
+  console.log('i am the payment result', latestPaymentResult);
   useEffect(() => {
     // Conditionally import and instantiate PaystackPop only in the browser environment
     if (typeof window !== 'undefined') {
@@ -56,7 +60,7 @@ const LeaveSessionPageContent = () => {
   }, [searchParams]); // Depend on searchParams
 
   const handlePayment = () => {
-    if (!paymentResult?.rawResponse?.data?.access_code) {
+    if (!latestPaymentResult?.rawResponse?.data?.access_code) {
       console.error('Payment information not available. Please try again.');
       setPaymentError('Payment information not available. Please try again.');
       return;
@@ -71,7 +75,7 @@ const LeaveSessionPageContent = () => {
     setPageState('payment-processing');
     setPaymentError(null);
 
-    paystackPopInstance.resumeTransaction(paymentResult?.rawResponse?.data?.access_code , {
+    paystackPopInstance.resumeTransaction(latestPaymentResult?.rawResponse?.data?.access_code , {
       onSuccess: (transaction: any) => {
         setTransactionDetails(transaction);
         handlePaymentSuccess(transaction);
@@ -280,10 +284,10 @@ const LeaveSessionPageContent = () => {
               onClick={handlePayment}
               variant="primary" 
               fullWidth 
-              disabled={!paymentResult?.gatewayReference || isLoading}
+              disabled={!latestPaymentResult?.gatewayReference || isLoading}
               className="bg-white text-[#FDB813] hover:bg-neutral-50 text-base sm:text-lg py-3 sm:py-4 font-semibold shadow-md hover:shadow-lg transition-all"
             >
-              {!paymentResult?.gatewayReference ? 'Loading Payment...' : 'Proceed to Pay'}
+              {!latestPaymentResult?.gatewayReference ? 'Loading Payment...' : 'Proceed to Pay'}
             </Button>
             <p className="text-xs sm:text-sm mt-4 opacity-80 text-center">
               Gate opens automatically after payment

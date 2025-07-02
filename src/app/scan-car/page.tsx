@@ -189,8 +189,11 @@ const ScanCarPage = () => {
                 const errorMsg = typeof result.payload === 'string' ? result.payload : 'Failed to process car image';
                 setLocalError(errorMsg);
               }
-            } catch (error) {
-              console.error('Error processing car image:', error);
+            } catch (error: any) {
+              if (error?.message?.includes('Authentication token not found')) {
+                router.push('/signin');
+                return;
+              }
               setLocalError('An error occurred while processing the car image. Please try again.');
             } finally {
               setLocalLoading(false);
@@ -290,8 +293,11 @@ const ScanCarPage = () => {
         const errorMsg = typeof result.payload === 'string' ? result.payload : 'Failed to process car image';
         setLocalError(errorMsg);
       }
-    } catch (error) {
-      console.error('Error processing uploaded image:', error);
+    } catch (error: any) {
+      if (error?.message?.includes('Authentication token not found')) {
+        router.push('/signin');
+        return;
+      }
       setLocalError('An error occurred while processing the image. Please try again.');
     } finally {
       setLocalLoading(false);

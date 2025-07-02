@@ -31,7 +31,7 @@ const mockTransactions: Transaction[] = [
 
 const TransactionHistoryPage: React.FC = () => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('History');
+  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('History');
   const [filter, setFilter] = useState<'All' | 'successful' | 'pending'>('All');
 
   const filteredTransactions = mockTransactions.filter(tx => {

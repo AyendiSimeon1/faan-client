@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { BaseUrl } from '../../../config'
+import { BaseUrl } from '../../../config';
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { AnyActionArg } from 'react';
 

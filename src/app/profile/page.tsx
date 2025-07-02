@@ -15,7 +15,7 @@ interface ProfileMenuItem {
 
 const ProfilePage: React.FC = () => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('Profile');
+  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Payments');
 
   const userProfile = {
     name: "Joy Miracle",

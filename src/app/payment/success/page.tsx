@@ -7,7 +7,7 @@ import { CloseIcon, LargeSuccessTickIcon, DownloadIcon } from '@/components/ui/I
 
 const PaymentSuccessfulPage: React.FC = () => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('Wallet');
+  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Wallet');
 
   const receiptDetails = {
     amountPaid: "₦1,600",

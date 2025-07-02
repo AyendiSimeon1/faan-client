@@ -14,7 +14,7 @@ const faqs = [
 
 const SupportPage: React.FC = () => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('Profile'); // Assuming it's part of profile flow
+  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Payments'); // Assuming it's part of profile flow
 
   return (
     <AppLayout

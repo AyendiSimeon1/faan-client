@@ -53,7 +53,7 @@ import authReducer from '../store/slice/auth';
 import uiReducer from '../store/slice/ui';
 import parkingReducer from '../store/slice/parking';
 import carReducer from '../store/slice/car';
-
+import paymentReducer from '../store/slice/payments'; // Added payments reducer
 // Persist configuration - Removed
 // const persistConfig = {
 //   key: 'root',
@@ -68,6 +68,7 @@ const rootReducer = combineReducers({
   ui: uiReducer,
   parking: parkingReducer,
   car: carReducer,
+  payments: paymentReducer, // Added payments reducer
 });
 
 // Create persisted reducer - Changed to direct rootReducer

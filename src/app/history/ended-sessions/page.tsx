@@ -8,7 +8,7 @@ import { fetchSessionHistory } from '@/store/slice/parking';
 const EndedSessionsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const { sessionHistory, isLoading } = useAppSelector(state => state.parking);
-  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('History');
+  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('History');
 
   useEffect(() => {
     dispatch(fetchSessionHistory());

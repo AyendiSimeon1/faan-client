@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import AppLayout from '@/components/layout/AppLayout';
@@ -11,45 +11,12 @@ import { RootState } from '@/store/store';
 const EnterPlatePage: React.FC = () => {
   const router = useRouter();
   const dispatch = useDispatch<any>();
-  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('Home');
+  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Home');
   const [plateNumber, setPlateNumber] = useState('');
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const { isLoading, error } = useSelector((state: RootState) => state.parking);
 
   const plateLength = 8;
   // const initialPlateChars = ['A', 'B', 'J', '2', '9', '0', 'E', 'L'];
-
-  useEffect(() => {
-    // Check for token on component mount
-    const checkAuthentication = () => {
-      const token = localStorage.getItem('accessToken');
-      console.log('Checking token for enter-plate page:', token);
-      
-      if (!token) {
-        // No token found, redirect to login with return URL
-        const currentPath = '/enter-plate';
-        router.push(`/signin?returnUrl=${encodeURIComponent(currentPath)}`);
-        return;
-      }
-      
-      // Token exists, continue with normal flow
-      setIsCheckingAuth(false);
-    };
-
-    checkAuthentication();
-  }, [router]);
-
-  // Show loading while checking authentication
-  if (isCheckingAuth) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
 
   const handlePlateChange = (newPlate: string) => {
     setPlateNumber(newPlate);

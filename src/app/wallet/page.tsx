@@ -65,7 +65,7 @@ const mockActivities: ActivityItem[] = [
 
 const WalletPage: React.FC = () => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Profile'>('Wallet');
+  const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Wallet');
 
   const getStatusColor = (status?: string) => {
     switch (status) {
