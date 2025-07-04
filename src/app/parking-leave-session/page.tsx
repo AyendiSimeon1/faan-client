@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect, Suspense } from 'react'; // Import Suspense
 import { useRouter, useSearchParams } from 'next/navigation';
-import AppLayout from '../../components/layout/AppLayout';
 import Button from '../../components/ui/Button';
 import Link from 'next/link';
 import { CloseIcon, CarWithCityIllustration, GreenCheckSmallIcon, LargeSuccessTickIcon } from '@/components/ui/Icon';
@@ -309,12 +308,7 @@ const LeaveSessionPageContent = () => {
   };
 
   return (
-    <AppLayout
-      activeTab={activeTab}
-      onTabChange={setActiveTab}
-      hideHeader={pageState === 'success'}
-      containerClassName="p-4 md:py-8"
-    >
+    <>
       {pageState !== 'success' && (
         <div className="flex justify-end mb-4 md:mb-6 -mt-2 md:-mt-4 -mr-2 md:-mr-4">
           <button onClick={() => router.push('/home')} className="p-3 hover:bg-neutral-100 rounded-full transition-colors">
@@ -323,7 +317,7 @@ const LeaveSessionPageContent = () => {
         </div>
       )}
       {renderContent()}
-    </AppLayout>
+    </>
   );
 };
 

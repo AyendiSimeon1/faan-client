@@ -41,14 +41,14 @@ const EnterPlatePage: React.FC = () => {
   };
 
   return (
-    <AppLayout
-      activeTab={activeTab}
-      onTabChange={setActiveTab}
-      headerProps={{
-        onBack: () => router.back(),
-        showBackButton: true,
-      }}
-    >
+    // <AppLayout
+    //   activeTab={activeTab}
+    //   onTabChange={setActiveTab}
+    //   headerProps={{
+    //     onBack: () => router.back(),
+    //     showBackButton: true,
+    //   }}
+    // >
       <div className="w-full h-full flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-md flex flex-col items-center">
           <p className="text-base sm:text-lg text-center text-[#2C2C2E] font-medium mb-6">
@@ -91,7 +91,7 @@ const EnterPlatePage: React.FC = () => {
           </div>
         </div>
       </div>
-    </AppLayout>
+    // </AppLayout>
   );
 };
 

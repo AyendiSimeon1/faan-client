@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import AppLayout from '@/components/layout/AppLayout';
 import SessionList from '@/components/ui/SessionList';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchSessionHistory } from '@/store/slice/parking';
@@ -18,11 +17,7 @@ const EndedSessionsPage: React.FC = () => {
   const endedSessions = sessionHistory?.data?.filter((s: any) => s.status?.toLowerCase() === 'completed') || [];
 
   return (
-    <AppLayout
-      activeTab={activeTab}
-      onTabChange={setActiveTab}
-      containerClassName="max-w-5xl mx-auto"
-    >
+    <>
       <h1 className="text-2xl font-bold mb-8 mt-4 text-center">Ended Parking Sessions</h1>
       {isLoading ? (
         <div className="flex justify-center items-center py-16">
@@ -34,7 +29,7 @@ const EndedSessionsPage: React.FC = () => {
       ) : (
         <SessionList sessions={endedSessions} emptyText="No ended sessions found." />
       )}
-    </AppLayout>
+    </>
   );
 };
 
