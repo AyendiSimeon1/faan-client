@@ -133,15 +133,27 @@ const LeaveSessionPageContent = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[
           { label: "Plate Number", value: endedSession?.displayPlateNumber || endedSession?.plateNumber, important: true },
-          { label: "Entry Time", value: endedSession?.entryTime, important: false },
-          { label: "Duration", value: endedSession?.durationInMinutes || endedSession?.duration, important: true },
+          { 
+            label: "Entry Time", 
+            value: endedSession?.entryTime 
+              ? new Date(endedSession.entryTime).toLocaleString(undefined, { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }) 
+              : 'N/A', 
+            important: false 
+          },
+          { label: "Duration in Minutes", value: endedSession?.durationInMinutes || endedSession?.duration, important: true },
           { label: "Total Fee", value: endedSession?.calculatedFee || endedSession?.fee, important: true },
           { 
             label: "Payment Status", 
             value: (
               <div className="flex items-center space-x-2">
-                <span>{pageState === 'success' ? 'Paid' : (endedSession?.status || 'Pending Payment')}</span>
-                {pageState === 'success' && <GreenCheckSmallIcon />}
+          <span>{pageState === 'success' ? 'Paid' : (endedSession?.status || 'Pending Payment')}</span>
+          {pageState === 'success' && <GreenCheckSmallIcon />}
               </div>
             )
           },
