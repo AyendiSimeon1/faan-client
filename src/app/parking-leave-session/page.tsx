@@ -147,7 +147,7 @@ const LeaveSessionPageContent = () => {
             important: false 
           },
           { label: "Duration in Minutes", value: endedSession?.durationInMinutes || endedSession?.duration, important: true },
-          { label: "Total Fee", value: endedSession?.calculatedFee || endedSession?.fee, important: true },
+          { label: "Total Fee in Naira", value: endedSession?.calculatedFee || endedSession?.fee, important: true },
           { 
             label: "Payment Status", 
             value: (
