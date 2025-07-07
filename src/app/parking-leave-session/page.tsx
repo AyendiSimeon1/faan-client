@@ -134,27 +134,14 @@ const LeaveSessionPageContent = () => {
         {[
           { label: "Plate Number", value: endedSession?.displayPlateNumber || endedSession?.plateNumber, important: true },
           { label: "Entry Time", value: endedSession?.entryTime, important: false },
-          { 
-            label: "Duration", 
-            value: (() => {
-              const minutes = endedSession?.durationInMinutes || endedSession?.duration;
-              if (!minutes && minutes !== 0) return 'N/A';
-              if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'}`;
-              const hours = Math.floor(minutes / 60);
-              const remMinutes = minutes % 60;
-              return remMinutes === 0
-          ? `${hours} hour${hours === 1 ? '' : 's'}`
-          : `${hours} hour${hours === 1 ? '' : 's'} ${remMinutes} minute${remMinutes === 1 ? '' : 's'}`;
-            })(),
-            important: true 
-          },
+          { label: "Duration", value: endedSession?.durationInMinutes || endedSession?.duration, important: true },
           { label: "Total Fee", value: endedSession?.calculatedFee || endedSession?.fee, important: true },
           { 
             label: "Payment Status", 
             value: (
               <div className="flex items-center space-x-2">
-          <span>{pageState === 'success' ? 'Paid' : (endedSession?.status || 'Pending Payment')}</span>
-          {pageState === 'success' && <GreenCheckSmallIcon />}
+                <span>{pageState === 'success' ? 'Paid' : (endedSession?.status || 'Pending Payment')}</span>
+                {pageState === 'success' && <GreenCheckSmallIcon />}
               </div>
             )
           },
