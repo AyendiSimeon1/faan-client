@@ -68,6 +68,7 @@ export const loginUser = createAsyncThunk(
       
       localStorage.setItem('accessToken', response.data.data.accessToken);
       console.log('Setting token to localStorage:', token);
+      console.log('i am the response data', response.data);
       return response.data;
       
 
@@ -276,13 +277,13 @@ export const authSlice = createSlice({
         console.log('i am the payload', action.payload);
         state.isLoading = false;
         state.user = action.payload.data.user;
-        state.token = action.payload.token;
+        state.token = action.payload.data.accessToken;
         state.isAuthenticated = true;
         state.error = null;
         logSuccess({ 
           feature: 'Auth', 
           action: 'Login State Updated', 
-          // data: { userId: action.payload.user.id } 
+          // data: { userId: action.payload.data.user._id } 
         });
       })
       .addCase(loginUser.rejected, (state, action) => {

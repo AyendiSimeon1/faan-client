@@ -23,23 +23,22 @@ const SignInForm: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
-  const [loading, setLoading] = React.useState(false);
+  const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
 
   // Get the return URL from query parameters
   const returnUrl = searchParams.get('returnUrl') || '/';
 
-  const onSubmit: SubmitHandler<any> = async (data) => {
-    setLoading(true);
-    try {
-      await dispatch(loginUser(data));
-    } finally {
-      setLoading(false);
-    }
+  console.log('isAuthenticated:', isAuthenticated);
+  console.log('returnUrl:', returnUrl);
+  
+  const onSubmit: SubmitHandler<any> =  (data) => {
+    dispatch(loginUser(data));
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
+      // Redirect to the return URL or home page
+      console.log('Redirecting authenticated user to:', returnUrl);
       router.push(returnUrl);
     }
   }, [isAuthenticated, router, returnUrl]);
@@ -85,9 +84,9 @@ const SignInForm: React.FC = () => {
           type="submit" 
           variant="primary" 
           fullWidth
-          disabled={loading}
+          disabled={isLoading}
         >
-          {loading ? 'Signing In...' : 'Sign In'}
+          {isLoading ? 'Signing In...' : 'Sign In'}
         </Button>
         <Button 
           type="button" 
@@ -99,7 +98,7 @@ const SignInForm: React.FC = () => {
             const guestUrl = returnUrl !== '/' ? `/guest-details?returnUrl=${encodeURIComponent(returnUrl)}` : '/guest-details';
             router.push(guestUrl);
           }}
-          disabled={loading}
+          disabled={isLoading}
         >
           Continue as Guest
         </Button>

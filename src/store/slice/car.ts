@@ -44,7 +44,7 @@ export const processCarImage = createAsyncThunk(
       
       return response.data;
     } catch (error: any) {
-      console.error('Image processing error:', error);
+      console.log('Image processing error:', error);
       logError({
         feature: 'Car',
         action: 'Image Processing Failed',

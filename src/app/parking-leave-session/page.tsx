@@ -24,6 +24,11 @@ const LeaveSessionPageContent = () => {
   const [paymentResponse, setPaymentResponse] = useState<any>(null);
   // State to hold the PaystackPop instance
   const [paystackPopInstance, setPaystackPopInstance] = useState<any>(null);
+  const [loading, setLoading] = useState(false); // Local loading state for payment
+  const [showPosSuccess, setShowPosSuccess] = useState(false);
+  const [posState, setPosState] = useState<'idle' | 'processing' | 'success'>('idle');
+  const [posReceipt, setPosReceipt] = useState<string | null>(null);
+  const [showPosConfirm, setShowPosConfirm] = useState(false);
 
   const { endedSession, paymentResult, isLoading, error } = useAppSelector((state) => state.parking);
   const p = useAppSelector((state) => state.parking);
@@ -60,32 +65,31 @@ const LeaveSessionPageContent = () => {
 
   const handlePayment = () => {
     if (!latestPaymentResult?.rawResponse?.data?.access_code) {
-      console.error('Payment information not available. Please try again.');
       setPaymentError('Payment information not available. Please try again.');
       return;
     }
-
     if (!paystackPopInstance) {
-      console.error('PaystackPop is not initialized.');
       setPaymentError('Payment system not ready. Please try again later.');
       return;
     }
-
+    setLoading(true);
     setPageState('payment-processing');
     setPaymentError(null);
-
     paystackPopInstance.resumeTransaction(latestPaymentResult?.rawResponse?.data?.access_code , {
       onSuccess: (transaction: any) => {
         setTransactionDetails(transaction);
         handlePaymentSuccess(transaction);
+        setLoading(false);
       },
       onCancel: () => {
         setPageState('confirm');
         setPaymentError('Payment was cancelled. You can try again when ready to exit.');
+        setLoading(false);
       },
       onError: (error: any) => {
         setPageState('confirm');
         setPaymentError('Payment failed. Please try again or contact support.');
+        setLoading(false);
       }
     });
   };
@@ -122,6 +126,23 @@ const LeaveSessionPageContent = () => {
       setPageState('confirm');
       setPaymentError('Payment completed but verification failed. Please contact support with your transaction reference.');
     }
+  };
+
+  const handlePosPayment = () => {
+    setShowPosConfirm(true);
+  };
+
+  const handlePosConfirm = () => {
+    setShowPosConfirm(false);
+    setPosState('processing');
+    setLoading(true);
+    // Simulate receipt number
+    const receiptNum = 'POS-' + Math.floor(100000 + Math.random() * 900000);
+    setTimeout(() => {
+      setLoading(false);
+      setPosState('success');
+      setPosReceipt(receiptNum);
+    }, 2500);
   };
 
   const SessionDetailCard = () => (
@@ -213,13 +234,12 @@ const LeaveSessionPageContent = () => {
           <LargeSuccessTickIcon  />
         </div>
       </div>
-      
-      <h2 className="text-3xl sm:text-4xl font-bold text-neutral-800 mb-3">Payment Successful!</h2>
-      <p className="text-lg sm:text-xl text-neutral-600 mb-2">Exit gate is now open</p>
-      <p className="text-neutral-500 mb-8 max-w-md mx-auto px-4">
-        You may now exit. Thank you for using our service. Have a safe drive! 🎉
+      <h2 className="text-4xl sm:text-5xl font-extrabold text-green-700 mb-4">EXIT GATE IS NOW OPEN</h2>
+      <p className="text-2xl sm:text-3xl font-bold text-green-700 mb-6">You may now leave</p>
+      <p className="text-lg sm:text-xl text-neutral-600 mb-2">Payment Successful!</p>
+      <p className="text-neutral-500 mb-8 max-w-md mx-auto px-4 text-lg sm:text-xl">
+        Thank you for using our service. Have a safe drive! 🎉
       </p>
-
       {transactionDetails && (
         <div className="bg-white rounded-xl border border-neutral-200 p-4 sm:p-6 mb-8 max-w-md mx-auto">
           <h4 className="font-semibold text-neutral-800 mb-4">Transaction Details</h4>
@@ -239,7 +259,71 @@ const LeaveSessionPageContent = () => {
           </div>
         </div>
       )}
+      <div className="max-w-md mx-auto space-y-3 px-4">
+        <Link href="/history/sessions" passHref>
+          <Button variant="tertiary" fullWidth className="text-base sm:text-lg py-3 border-2 hover:bg-neutral-50">
+            📊 View Parking History
+          </Button>
+        </Link>
+        <Button variant="tertiary" fullWidth onClick={() => router.push('/home')} className="text-base py-3 text-neutral-600 hover:text-neutral-800">
+          ← Back to Dashboard
+        </Button>
+      </div>
+    </div>
+  );
 
+  const PosProcessingState = () => (
+    <div className="text-center py-8 sm:py-12 flex flex-col items-center justify-center h-full">
+      <div className="relative mb-6 sm:mb-8">
+        <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-4xl">🧾</span>
+        </div>
+      </div>
+      <h3 className="text-2xl sm:text-3xl font-bold text-blue-700 mb-3">Processing POS Payment</h3>
+      <p className="text-neutral-600 max-w-sm mx-auto text-lg">
+        Please wait while the attendant processes your payment...
+      </p>
+    </div>
+  );
+
+  const PosConfirmState = () => (
+    <div className="text-center py-8 sm:py-12 flex flex-col items-center justify-center h-full">
+      <div className="mb-6 sm:mb-8">
+        <span className="text-5xl">🧾</span>
+      </div>
+      <h3 className="text-2xl sm:text-3xl font-bold text-blue-700 mb-3">Confirm POS Payment</h3>
+      <p className="text-neutral-600 max-w-sm mx-auto text-lg mb-6">
+        Please confirm you have paid with POS and collected your receipt from the attendant.
+      </p>
+      <Button variant="primary" fullWidth className="text-base sm:text-lg py-3" onClick={handlePosConfirm}>
+        Yes, I have paid with POS
+      </Button>
+      <Button variant="tertiary" fullWidth className="mt-4 text-base sm:text-lg py-3" onClick={() => setShowPosConfirm(false)}>
+        Cancel
+      </Button>
+    </div>
+  );
+
+  const PosSuccessState = () => (
+    <div className="text-center py-8 sm:py-12 md:py-16">
+      <div className="mb-6 sm:mb-8 relative">
+        <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full flex items-center justify-center border-4 border-blue-200">
+          <LargeSuccessTickIcon />
+        </div>
+      </div>
+      <h2 className="text-4xl sm:text-5xl font-extrabold text-blue-700 mb-4">POS PAYMENT SUCCESSFUL</h2>
+      <p className="text-2xl sm:text-3xl font-bold text-blue-700 mb-6">Exit gate is now open</p>
+      <p className="text-lg sm:text-xl text-neutral-600 mb-2">Thank you for using our service!</p>
+      <p className="text-neutral-500 mb-8 max-w-md mx-auto px-4 text-lg sm:text-xl">
+        Please collect your receipt from the attendant. Have a safe drive! 🎉
+      </p>
+      {posReceipt && (
+        <div className="bg-white rounded-xl border border-blue-200 p-4 sm:p-6 mb-8 max-w-md mx-auto">
+          <h4 className="font-semibold text-blue-700 mb-2">Receipt Number</h4>
+          <div className="font-mono text-lg text-blue-700">{posReceipt}</div>
+        </div>
+      )}
       <div className="max-w-md mx-auto space-y-3 px-4">
         <Link href="/history/sessions" passHref>
           <Button variant="tertiary" fullWidth className="text-base sm:text-lg py-3 border-2 hover:bg-neutral-50">
@@ -295,10 +379,19 @@ const LeaveSessionPageContent = () => {
               onClick={handlePayment}
               variant="primary" 
               fullWidth 
-              disabled={!latestPaymentResult?.gatewayReference || isLoading}
+              disabled={!latestPaymentResult?.gatewayReference || loading || posState === 'processing'}
               className="bg-white text-[#FDB813] hover:bg-neutral-50 text-base sm:text-lg py-3 sm:py-4 font-semibold shadow-md hover:shadow-lg transition-all"
             >
-              {!latestPaymentResult?.gatewayReference ? 'Loading Payment...' : 'Proceed to Pay'}
+              {loading && posState !== 'processing' ? 'Processing Payment...' : (!latestPaymentResult?.gatewayReference ? 'Loading Payment...' : 'Proceed to Pay')}
+            </Button>
+            <Button
+              onClick={handlePosPayment}
+              variant="secondary"
+              fullWidth
+              disabled={loading || posState === 'processing'}
+              className="mt-4 text-base sm:text-lg py-3 sm:py-4 font-semibold shadow-md hover:shadow-lg transition-all bg-blue-600 text-white"
+            >
+              {posState === 'processing' ? 'Processing POS Payment...' : 'Pay with POS'}
             </Button>
             <p className="text-xs sm:text-sm mt-4 opacity-80 text-center">
               Gate opens automatically after payment
@@ -310,6 +403,10 @@ const LeaveSessionPageContent = () => {
   );
 
   const renderContent = () => {
+    if (showPosConfirm) return <PosConfirmState />;
+    if (posState === 'processing') return <PosProcessingState />;
+    if (posState === 'success') return <PosSuccessState />;
+    if (showPosSuccess) return <PosSuccessState />;
     switch (pageState) {
       case 'confirm': return <ConfirmState />;
       case 'payment-processing': return <PaymentProcessingState />;

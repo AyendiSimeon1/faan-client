@@ -10,7 +10,7 @@ export const fetchPayments = createAsyncThunk(
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) return rejectWithValue('No access token found');
       const headers = { Authorization: `Bearer ${accessToken}` };
-      const response = await axios.get(`${BaseUrl}/payments/history`, { headers });
+      const response = await axios.get(`${BaseUrl}/payments/all`, { headers });
       console.log('Payments fetched successfully:', response.data);
       return response.data;
     } catch (error: any) {

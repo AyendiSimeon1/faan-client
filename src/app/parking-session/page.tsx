@@ -16,7 +16,7 @@ const ParkingSessionPage: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
   const { activeSession, isLoading, error } = useAppSelector((state) => state.parking);
   
-  console.log('an active sessions', activeSession);
+
 
   // Handle client-side mounting
   useEffect(() => {
@@ -117,6 +117,7 @@ const ParkingSessionPage: React.FC = () => {
   );
 
   const [showRateDetails, setShowRateDetails] = useState(false);
+    console.log('an active sessions', activeSession);
 
   // Rate details component
   const RateDetails: React.FC = () => (
@@ -206,6 +207,7 @@ const ParkingSessionPage: React.FC = () => {
           <InfoCard title="Vehicle Information" icon={<CarIconSmall />}>
             <DetailRow label="Plate Number" value={activeSession.data?.vehiclePlateNumber || '-'} />
             <DetailRow label="Vehicle Type" value={activeSession.data?.vehicleType || '-'} />
+            <DetailRow label="Secure Id" value={activeSession.data?.secureId || '-'} />
           </InfoCard>
 
         </div>

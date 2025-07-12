@@ -46,21 +46,15 @@
 
 // app/store.ts
 import { configureStore } from '@reduxjs/toolkit';
-// import { persistStore, persistReducer } from 'redux-persist'; // Removed
-// import storage from 'redux-persist/lib/storage'; // localStorage // Removed
+import { persistStore, persistReducer } from 'redux-persist';
+import persistConfig from './persistConfig';
 import { combineReducers } from '@reduxjs/toolkit';
 import authReducer from '../store/slice/auth';
 import uiReducer from '../store/slice/ui';
 import parkingReducer from '../store/slice/parking';
 import carReducer from '../store/slice/car';
 import paymentReducer from '../store/slice/payments'; // Added payments reducer
-// Persist configuration - Removed
-// const persistConfig = {
-//   key: 'root',
-//   storage,
-//   whitelist: ['auth', 'parking', 'car'],
-//   // blacklist: ['ui'],
-// };
+import walletReducer from '../store/slice/wallet'; // Added wallet reducer
 
 // Combine all reducers
 const rootReducer = combineReducers({
@@ -69,22 +63,23 @@ const rootReducer = combineReducers({
   parking: parkingReducer,
   car: carReducer,
   payments: paymentReducer, // Added payments reducer
+  wallet: walletReducer, // Added wallet reducer
 });
 
-// Create persisted reducer - Changed to direct rootReducer
-// const persistedReducer = persistReducer(persistConfig, rootReducer);
+// Create persisted reducer
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: rootReducer, // Directly use rootReducer
+  reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      // serializableCheck: { // Removed, as it's related to redux-persist
-      //   ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
-      // },
+      serializableCheck: {
+        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+      },
     }),
 });
 
-// export const persistor = persistStore(store); // Removed
+export const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

@@ -9,44 +9,44 @@ import { ArrowRightIcon, HamburgerMenuIcon, MoreIcon, PlaceholderQRCode, PlusIco
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 // import { fetchActiveSession } from '@/store/slice/parking';
 import { setActiveBottomTab } from '@/store/slice/ui';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { fetchWalletBalance } from '@/store/slice/wallet';
+
 
 
 const HomePage: React.FC = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
+
+  const fullState = useAppSelector((state) => state);
+  console.log('Full state:', fullState); // Log the entire state for debugging
   const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Home');
   const [sessionStatus, setSessionStatus] = useState<'inactive' | 'active' | 'pending'>('inactive'); // Example state
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const { isLoading, error, balance } = useAppSelector((state) => state.wallet);
+
 
   const { activeSession, isLoading: parkingLoading } = useAppSelector(state => state.parking);
   const { user } = useAppSelector(state => state.auth);
+  console.log('yes i am the real users', user);
 
   console.log('i am the user', user);
+  useEffect(() => {
+      dispatch(fetchWalletBalance());
+    }, [dispatch]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const checkAuthentication = () => {
-      const token = localStorage.getItem('accessToken');
-      console.log('i am the token', token);
-      
-      try {
-        const token = localStorage.getItem('accessToken');
-        console.log('Retrieved token:', token);
-      } catch (error) {
-        console.log('Error accessing localStorage:', error);
-      }
-      
-      // Token exists, continue with normal flow
-      setIsCheckingAuth(false);
-      dispatch(setActiveBottomTab('Home')); // Set active tab for this page
-      
-      // if(user){ // Only fetch if user is logged in
-      //     dispatch(fetchActiveSession());
-      // }
-    };
-
-    checkAuthentication();
-  }, [dispatch, router, user]);
+    // Simple authentication check: only check for token in localStorage
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      router.replace('/signin');
+      return;
+    }
+    setIsCheckingAuth(false);
+    dispatch(setActiveBottomTab('Home'));
+  }, [dispatch, router]);
 
   // Show loading or nothing while checking authentication
   if (isCheckingAuth) {
@@ -68,17 +68,31 @@ const HomePage: React.FC = () => {
     router.push('/enter-plate'); // Navigate to enter plate page
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    router.replace('/signin');
+  };
+
   const CustomHomeHeader = () => (
     <header className="bg-neutral-50 p-4 sm:p-6 flex items-center justify-between">
       <div className="flex items-center space-x-3">
         <UserAvatar src="https://via.placeholder.com/40/FDB813/2C2C2E?text=J" /> {/* Replace with actual user image */}
         <div>
-          <p className="text-lg font-semibold text-[#2C2C2E]">Hello Joy, welcome! 👋</p>
+          <p className="text-lg font-semibold text-[#2C2C2E]">{user?.name ?? 'Guest'} 👋</p>
         </div>
       </div>
-      <button className="p-2">
-        <HamburgerMenuIcon />
-      </button>
+      <div className="mb-4 text-center">
+        <span className="font-semibold">Current Balance:</span>{' '}
+        <span className="text-lg text-green-600">{balance !== null ? `₦${balance}` : 'Loading...'}</span>
+      </div>
+      <div className="flex items-center space-x-2">
+        <button className="p-2" onClick={handleLogout}>
+          Logout
+        </button>
+        <button className="p-2">
+          <HamburgerMenuIcon />
+        </button>
+      </div>
     </header>
   );
 
@@ -114,7 +128,7 @@ const HomePage: React.FC = () => {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-4 sm:gap-6">
-          <Link href="/wallet/top-up" passHref>
+          <Link href="/wallet/topup" passHref>
             <p className="flex flex-col items-center justify-center bg-white p-4 sm:p-6 rounded-xl shadow hover:shadow-md transition-shadow text-center">
               <div className="bg-neutral-100 p-3 rounded-full mb-2">
                 <PlusIcon />
