@@ -389,7 +389,7 @@ const LeaveSessionPageContent = () => {
               variant="secondary"
               fullWidth
               disabled={loading || posState === 'processing'}
-              className="mt-4 text-base sm:text-lg py-3 sm:py-4 font-semibold shadow-md hover:shadow-lg transition-all bg-blue-600 text-white"
+              className="mt-4 text-base sm:text-lg py-3 sm:py-4 font-semibold shadow-md hover:shadow-lg transition-all !bg-blue-600 !text-white"
             >
               {posState === 'processing' ? 'Processing POS Payment...' : 'Pay with POS'}
             </Button>
