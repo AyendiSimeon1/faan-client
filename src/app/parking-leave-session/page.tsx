@@ -199,7 +199,9 @@ const SessionDetailCard = () => {
       value: endedSession?.displayPlateNumber || endedSession?.plateNumber || 'N/A',
       important: true,
       icon: Hash,
-      color: "text-blue-600"
+      color: "text-blue-600",
+      bgColor: "from-blue-50 to-blue-100",
+      borderColor: "border-blue-200 hover:border-blue-300"
     },
     { 
       label: "Entry Time", 
@@ -214,7 +216,9 @@ const SessionDetailCard = () => {
         : 'N/A',
       important: false,
       icon: Calendar,
-      color: "text-purple-600"
+      color: "text-purple-600",
+      bgColor: "from-purple-50 to-purple-100",
+      borderColor: "border-purple-200 hover:border-purple-300"
     },
     { 
       label: "Duration", 
@@ -223,14 +227,18 @@ const SessionDetailCard = () => {
         : 'N/A',
       important: true,
       icon: Clock,
-      color: "text-orange-600"
+      color: "text-orange-600",
+      bgColor: "from-orange-50 to-orange-100",
+      borderColor: "border-orange-200 hover:border-orange-300"
     },
     { 
       label: "Total Fee", 
       value: `₦${(endedSession?.calculatedFee || endedSession?.fee || 0).toLocaleString()}`,
       important: true,
       icon: DollarSign,
-      color: "text-green-600"
+      color: "text-green-600",
+      bgColor: "from-green-50 to-green-100",
+      borderColor: "border-green-200 hover:border-green-300"
     },
     { 
       label: "Payment Status", 
@@ -238,6 +246,8 @@ const SessionDetailCard = () => {
       important: false,
       icon: pageState === 'success' || posCurrentStep === 'pos-success' ? CheckCircle : Clock,
       color: pageState === 'success' || posCurrentStep === 'pos-success' ? "text-green-600" : "text-amber-600",
+      bgColor: pageState === 'success' || posCurrentStep === 'pos-success' ? "from-green-50 to-green-100" : "from-amber-50 to-amber-100",
+      borderColor: pageState === 'success' || posCurrentStep === 'pos-success' ? "border-green-200 hover:border-green-300" : "border-amber-200 hover:border-amber-300",
       isStatus: true
     },
     { 
@@ -245,112 +255,174 @@ const SessionDetailCard = () => {
       value: pageState === 'success' ? 'Card Payment' : (posCurrentStep === 'pos-success' ? 'POS Terminal' : 'Not Paid'),
       important: false,
       icon: CreditCard,
-      color: "text-indigo-600"
+      color: "text-indigo-600",
+      bgColor: "from-indigo-50 to-indigo-100",
+      borderColor: "border-indigo-200 hover:border-indigo-300"
     },
   ];
 
   const isPaid = pageState === 'success' || posCurrentStep === 'pos-success';
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden mb-6 hover:shadow-xl transition-shadow duration-300">
-      {/* Header with enhanced visual hierarchy */}
-      <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-4 sm:px-6 py-4 border-b border-amber-100">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg sm:text-xl font-bold text-neutral-800 flex items-center">
-            <span 
-              className="w-3 h-3 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full mr-3 shadow-sm" 
-              aria-hidden="true"
-            ></span>
-            Session Summary
-          </h3>
-          {isPaid && (
-            <div className="flex items-center space-x-2 bg-green-100 px-3 py-1 rounded-full">
-              <CheckCircle className="w-4 h-4 text-green-600" aria-hidden="true" />
-              <span className="text-sm font-medium text-green-800">Completed</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Enhanced grid layout with better spacing */}
-      <div className="p-4 sm:p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {sessionData.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <div 
-                key={item.label}
-                className={`group relative p-4 rounded-xl border-2 transition-all duration-300 hover:shadow-md ${
-                  item.important 
-                    ? 'border-amber-200 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 hover:border-amber-300' 
-                    : 'border-neutral-200 bg-neutral-50 hover:border-neutral-300 hover:bg-neutral-100'
-                }`}
-                role="region"
-                aria-labelledby={`label-${index}`}
-              >
-                {/* Icon and Label */}
-                <div className="flex items-center space-x-2 mb-2">
-                  <Icon 
-                    className={`w-4 h-4 ${item.color} transition-transform duration-200 group-hover:scale-110`}
-                    aria-hidden="true"
-                  />
-                  <div 
-                    id={`label-${index}`}
-                    className="text-sm font-medium text-neutral-600 uppercase tracking-wide"
-                  >
-                    {item.label}
-                  </div>
-                </div>
-
-                {/* Value with enhanced typography */}
-                <div className="flex items-center space-x-2">
-                  <div 
-                    className={`font-bold transition-colors duration-200 ${
-                      item.important 
-                        ? 'text-xl sm:text-2xl text-neutral-800' 
-                        : 'text-base sm:text-lg text-neutral-700'
-                    }`}
-                    aria-live={item.isStatus ? "polite" : undefined}
-                  >
-                    {item.value}
-                  </div>
-                  {item.isStatus && isPaid && (
-                    <CheckCircle 
-                      className="w-5 h-5 text-green-600 ml-2" 
-                      aria-label="Payment completed"
-                    />
-                  )}
-                </div>
-
-                {/* Visual emphasis for important items */}
-                {item.important && (
-                  <div className="absolute top-2 right-2 w-2 h-2 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full shadow-sm"></div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Summary footer for better context */}
-        <div className="mt-6 p-4 bg-gradient-to-r from-neutral-50 to-neutral-100 rounded-xl border border-neutral-200">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full flex items-center justify-center">
-                <Hash className="w-4 h-4 text-white" aria-hidden="true" />
+    <div className="w-full max-w-7xl mx-auto mb-8">
+      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-3xl">
+        {/* Enhanced Header */}
+        <div className="bg-gradient-to-r from-[#FDB813] to-[#FFD700] px-6 sm:px-8 py-6 relative overflow-hidden">
+          {/* Background pattern */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#FDB813]/20 to-[#FFD700]/20 opacity-50"></div>
+          <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
+          <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
+          
+          <div className="relative flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
               </div>
               <div>
-                <div className="text-sm font-medium text-neutral-600">Session ID</div>
-                <div className="text-lg font-bold text-neutral-800">
-                  {endedSession?.displayPlateNumber || 'Unknown'}
+                <h3 className="text-2xl sm:text-3xl font-bold text-white flex items-center">
+                  Session Summary
+                </h3>
+                <p className="text-white/80 text-sm">
+                  Complete parking session details
+                </p>
+              </div>
+            </div>
+            
+            {isPaid && (
+              <div className="flex items-center space-x-3 bg-green-500/20 backdrop-blur-sm px-4 py-2 rounded-full border border-green-400/30 shadow-lg">
+                <CheckCircle className="w-5 h-5 text-green-100" aria-hidden="true" />
+                <span className="text-sm font-semibold text-green-100">Payment Completed</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Enhanced Content Area */}
+        <div className="p-6 sm:p-8 lg:p-10">
+          {/* Main Stats Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+            {sessionData.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <div 
+                  key={item.label}
+                  className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] ${
+                    item.important 
+                      ? `bg-gradient-to-br ${item.bgColor} ${item.borderColor} shadow-md` 
+                      : `bg-gradient-to-br ${item.bgColor} ${item.borderColor} shadow-sm`
+                  } dark:bg-gray-700 dark:border-gray-600 dark:hover:border-gray-500`}
+                  role="region"
+                  aria-labelledby={`label-${index}`}
+                >
+                  {/* Important indicator */}
+                  {item.important && (
+                    <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-[#FDB813] to-[#FFD700] rounded-full shadow-lg animate-pulse"></div>
+                  )}
+
+                  {/* Icon and Label */}
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className={`w-10 h-10 rounded-xl bg-white/80 dark:bg-gray-600 flex items-center justify-center shadow-sm transition-transform duration-200 group-hover:scale-110`}>
+                      <Icon 
+                        className={`w-5 h-5 ${item.color} dark:text-white`}
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <div>
+                      <div 
+                        id={`label-${index}`}
+                        className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide"
+                      >
+                        {item.label}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Value */}
+                  <div className="flex items-center justify-between">
+                    <div 
+                      className={`font-bold transition-colors duration-200 ${
+                        item.important 
+                          ? 'text-2xl sm:text-3xl text-gray-800 dark:text-white' 
+                          : 'text-lg sm:text-xl text-gray-700 dark:text-gray-200'
+                      }`}
+                      aria-live={item.isStatus ? "polite" : undefined}
+                    >
+                      {item.value}
+                    </div>
+                    {item.isStatus && isPaid && (
+                      <CheckCircle 
+                        className="w-6 h-6 text-green-600 dark:text-green-400 animate-pulse" 
+                        aria-label="Payment completed"
+                      />
+                    )}
+                  </div>
+
+                  {/* Subtle animation effect */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Enhanced Summary Footer */}
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-2xl border border-gray-200 dark:border-gray-600 p-6 shadow-inner">
+            <div className="flex items-center justify-between flex-wrap gap-6">
+              {/* Session ID */}
+              <div className="flex items-center space-x-4">
+                <div className="w-14 h-14 bg-gradient-to-r from-[#FDB813] to-[#FFD700] rounded-2xl flex items-center justify-center shadow-lg">
+                  <Hash className="w-6 h-6 text-white" aria-hidden="true" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
+                    Session ID
+                  </div>
+                  <div className="text-xl font-bold text-gray-800 dark:text-white">
+                    {endedSession?.displayPlateNumber || 'Unknown'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Status */}
+              <div className="text-right">
+                <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
+                  Final Status
+                </div>
+                <div className={`text-xl font-bold flex items-center space-x-2 ${
+                  isPaid ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'
+                }`}>
+                  {isPaid ? (
+                    <CheckCircle className="w-6 h-6" />
+                  ) : (
+                    <Clock className="w-6 h-6" />
+                  )}
+                  <span>{isPaid ? 'Completed' : 'Pending'}</span>
+                </div>
+              </div>
+
+              {/* Additional Info */}
+              <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Secure Transaction</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span>Real-time Updates</span>
                 </div>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-sm font-medium text-neutral-600">Status</div>
-              <div className={`text-lg font-bold ${isPaid ? 'text-green-600' : 'text-amber-600'}`}>
-                {isPaid ? 'Completed' : 'Pending'}
-              </div>
-            </div>
+          </div>
+
+          {/* Action Buttons (if needed) */}
+          <div className="mt-8 flex flex-wrap gap-4 justify-center">
+            <button className="px-6 py-3 bg-gradient-to-r from-[#FDB813] to-[#FFD700] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
+              Download Receipt
+            </button>
+            <button className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
+              View History
+            </button>
           </div>
         </div>
       </div>
@@ -655,7 +727,7 @@ const SessionDetailCard = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+      <div className=" gap-8 lg:gap-12 items-start">
         <div className="flex flex-col items-center order-2 lg:order-1">
           <SessionDetailCard />
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 sm:p-6 border border-blue-200 w-full">
@@ -687,7 +759,7 @@ const SessionDetailCard = () => {
               variant="secondary"
               fullWidth
               disabled={loading || pageState === 'pos-flow'} // Disable if online payment is loading or already in POS flow
-              className="mt-4 text-base sm:text-lg py-3 sm:py-4 font-semibold shadow-md hover:shadow-lg transition-all !bg-blue-600 !text-white"
+              className="mt-4 text-base sm:text-lg py-3 sm:py-4 font-semibold shadow-md hover:shadow-lg transition-all !bg-white-600 !text-yellow"
             >
               Pay with POS
             </Button>

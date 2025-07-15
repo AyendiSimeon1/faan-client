@@ -117,7 +117,11 @@ const WalletPage: React.FC = () => {
                 <div className="flex justify-between items-start mb-6">
                   <div>
                     <p className="text-neutral-300 text-lg mb-2">Available Balance</p>
-                    <p className="text-5xl font-bold mb-1">{balance !== null ? `₦${balance}` : 'Loading...'}</p>
+                    <p className="text-5xl font-bold mb-1">
+                    {balance !== null
+                      ? `₦${balance.toLocaleString()}`
+                      : 'Loading...'}
+                  </p>
                     <p className="text-[#FDB813] font-medium">Nigerian Naira</p>
                   </div>
                   <div className="text-right">
