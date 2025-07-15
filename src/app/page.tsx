@@ -20,16 +20,25 @@ const HomePage: React.FC = () => {
   const { balance } = useAppSelector((state) => state.wallet);
   const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Home');
   const [sessionStatus, setSessionStatus] = useState<'inactive' | 'active' | 'pending'>('inactive');
+  const [isClient, setIsClient] = useState(false);
+
+  // --- Effect for Client-side Hydration ---
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // --- Effect for Handling Authentication State ---
   useEffect(() => {
+    // Only run on client side after hydration
+    if (!isClient) return;
+    
     // On component mount or when isAuthenticated changes, check the state.
     // If not authenticated and no token exists, redirect to signin.
     // This prevents the loop and handles the redirection after logout.
     if (!isAuthenticated && !localStorage.getItem('accessToken')) {
       router.replace('/signin');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, isClient]);
 
   // --- Effect for Initial Data Fetching ---
   useEffect(() => {
@@ -65,33 +74,33 @@ const HomePage: React.FC = () => {
       </div>
       <div className="flex items-center space-x-2">
         <button 
-  className="
-    flex items-center gap-2 px-4 py-2 
-    bg-red-500 hover:bg-red-600 active:bg-red-700
-    text-white font-medium text-sm
-    rounded-lg shadow-sm hover:shadow-md
-    border border-red-500 hover:border-red-600
-    transition-all duration-200 ease-in-out
-    focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
-    disabled:opacity-50 disabled:cursor-not-allowed
-  " 
-  onClick={handleLogout}
->
-  <svg 
-    className="w-4 h-4" 
-    fill="none" 
-    stroke="currentColor" 
-    viewBox="0 0 24 24"
-  >
-    <path 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      strokeWidth={2} 
-      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" 
-    />
-  </svg>
-  Logout
-</button>
+          className="
+            flex items-center gap-2 px-4 py-2 
+            bg-red-500 hover:bg-red-600 active:bg-red-700
+            text-white font-medium text-sm
+            rounded-lg shadow-sm hover:shadow-md
+            border border-red-500 hover:border-red-600
+            transition-all duration-200 ease-in-out
+            focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
+            disabled:opacity-50 disabled:cursor-not-allowed
+          " 
+          onClick={handleLogout}
+        >
+          <svg 
+            className="w-4 h-4" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" 
+            />
+          </svg>
+          Logout
+        </button>
         <button className="p-2">
           <HamburgerMenuIcon />
         </button>
@@ -100,6 +109,18 @@ const HomePage: React.FC = () => {
   );
 
   // --- Render Logic ---
+
+  // Show loading while client is hydrating
+  if (!isClient) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // While user is being logged out or if auth state is not yet confirmed, show a loading/redirecting screen.
   // This prevents rendering the main content with stale data.
