@@ -253,43 +253,10 @@ const ParkingSessionPage: React.FC = () => {
             </div>
           </InfoCard>
 
-          {/* Action Buttons */}
-          <div className="space-y-3">
-            <Button 
-              fullWidth 
-              onClick={() => router.push('/parking/leave-session')}
-              className="text-lg py-4 font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-            >
-              Pay & Exit Session
-            </Button>
-            
-            <Button 
-              fullWidth 
-              onClick={() => router.push('/parking/extend-session')}
-              className="text-base py-3 border-2 hover:bg-neutral-50"
-            >
-              Extend Session
-            </Button>
-          </div>
 
         </div>
       </div>
 
-      {/* Quick Actions Footer */}
-      <div className="bg-neutral-50 rounded-2xl p-6 border border-neutral-200">
-        <h3 className="font-semibold text-neutral-800 mb-4">Quick Actions</h3>
-        <div className="flex flex-wrap gap-3">
-          <button className="px-4 py-2 bg-white rounded-lg border border-neutral-200 hover:border-neutral-300 text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors">
-            Download Receipt
-          </button>
-          <button className="px-4 py-2 bg-white rounded-lg border border-neutral-200 hover:border-neutral-300 text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors">
-            View Parking Rules
-          </button>
-          <button className="px-4 py-2 bg-white rounded-lg border border-neutral-200 hover:border-neutral-300 text-sm font-medium text-neutral-700 hover:text-neutral-900 transition-colors">
-            Contact Support
-          </button>
-        </div>
-      </div>
 
     </AppLayout>
   );

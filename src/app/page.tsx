@@ -3,76 +3,54 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AppLayout from '../components/layout/AppLayout';
 import Button from '../components/ui/Button';
-// import { UserAvatar, HamburgerMenuIcon, PlusIcon, MoreIcon, PlaceholderQRCode, ArrowRightIcon } from '../components/ui/Icons';
 import Link from 'next/link';
 import { ArrowRightIcon, HamburgerMenuIcon, MoreIcon, PlaceholderQRCode, PlusIcon, UserAvatar } from '@/components/ui/Icon';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-// import { fetchActiveSession } from '@/store/slice/parking';
 import { setActiveBottomTab } from '@/store/slice/ui';
-import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { fetchWalletBalance } from '@/store/slice/wallet';
-
-
+import { logout } from '@/store/slice/auth';
 
 const HomePage: React.FC = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const fullState = useAppSelector((state) => state);
-  console.log('Full state:', fullState); // Log the entire state for debugging
+  // --- State Selectors ---
+  const { user, isAuthenticated } = useAppSelector(state => state.auth);
+  const { balance } = useAppSelector((state) => state.wallet);
   const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Home');
-  const [sessionStatus, setSessionStatus] = useState<'inactive' | 'active' | 'pending'>('inactive'); // Example state
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const { isLoading, error, balance } = useAppSelector((state) => state.wallet);
+  const [sessionStatus, setSessionStatus] = useState<'inactive' | 'active' | 'pending'>('inactive');
 
-
-  const { activeSession, isLoading: parkingLoading } = useAppSelector(state => state.parking);
-  const { user } = useAppSelector(state => state.auth);
-  console.log('yes i am the real users', user);
-
-  console.log('i am the user', user);
+  // --- Effect for Handling Authentication State ---
   useEffect(() => {
-      dispatch(fetchWalletBalance());
-    }, [dispatch]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    // Simple authentication check: only check for token in localStorage
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
+    // On component mount or when isAuthenticated changes, check the state.
+    // If not authenticated and no token exists, redirect to signin.
+    // This prevents the loop and handles the redirection after logout.
+    if (!isAuthenticated && !localStorage.getItem('accessToken')) {
       router.replace('/signin');
-      return;
     }
-    setIsCheckingAuth(false);
-    dispatch(setActiveBottomTab('Home'));
-  }, [dispatch, router]);
+  }, [isAuthenticated, router]);
 
-  // Show loading or nothing while checking authentication
-  if (isCheckingAuth) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
+  // --- Effect for Initial Data Fetching ---
+  useEffect(() => {
+    // Only fetch data if the user is authenticated.
+    if (isAuthenticated) {
+      dispatch(fetchWalletBalance());
+      dispatch(setActiveBottomTab('Home'));
+    }
+  }, [dispatch, isAuthenticated]);
 
+  // --- Event Handlers ---
   const handleScanQR = () => {
     router.push('/scan-car'); // Navigate to QR scanner page
   };
 
-  const handleEnterPlate = () => {
-    router.push('/enter-plate'); // Navigate to enter plate page
-  };
-
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    router.replace('/signin');
+    // Simply dispatch the logout action. The useEffect above will handle the redirect.
+    dispatch(logout());
   };
 
+  // --- Custom Header Component ---
   const CustomHomeHeader = () => (
     <header className="bg-neutral-50 p-4 sm:p-6 flex items-center justify-between">
       <div className="flex items-center space-x-3">
@@ -81,20 +59,60 @@ const HomePage: React.FC = () => {
           <p className="text-lg font-semibold text-[#2C2C2E]">{user?.name ?? 'Guest'} 👋</p>
         </div>
       </div>
-      <div className="mb-4 text-center">
+      <div className="text-center">
         <span className="font-semibold">Current Balance:</span>{' '}
         <span className="text-lg text-green-600">{balance !== null ? `₦${balance}` : 'Loading...'}</span>
       </div>
       <div className="flex items-center space-x-2">
-        <button className="p-2" onClick={handleLogout}>
-          Logout
-        </button>
+        <button 
+  className="
+    flex items-center gap-2 px-4 py-2 
+    bg-red-500 hover:bg-red-600 active:bg-red-700
+    text-white font-medium text-sm
+    rounded-lg shadow-sm hover:shadow-md
+    border border-red-500 hover:border-red-600
+    transition-all duration-200 ease-in-out
+    focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
+    disabled:opacity-50 disabled:cursor-not-allowed
+  " 
+  onClick={handleLogout}
+>
+  <svg 
+    className="w-4 h-4" 
+    fill="none" 
+    stroke="currentColor" 
+    viewBox="0 0 24 24"
+  >
+    <path 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      strokeWidth={2} 
+      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" 
+    />
+  </svg>
+  Logout
+</button>
         <button className="p-2">
           <HamburgerMenuIcon />
         </button>
       </div>
     </header>
   );
+
+  // --- Render Logic ---
+
+  // While user is being logged out or if auth state is not yet confirmed, show a loading/redirecting screen.
+  // This prevents rendering the main content with stale data.
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to sign-in...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AppLayout
@@ -105,7 +123,6 @@ const HomePage: React.FC = () => {
     >
       <div className="space-y-6 sm:space-y-8">
         {/* Scan QR Card */}
-        {/* <Link href="/scan-car" passHref> */}
         <div className="bg-blue-600 p-6 rounded-xl shadow-lg text-white flex flex-col sm:flex-row items-center justify-between cursor-pointer hover:bg-blue-700 transition-colors" onClick={handleScanQR}>
           <div className="mb-4 sm:mb-0 sm:mr-6">
             <h2 className="text-xl sm:text-2xl font-bold mb-1">Scan QR to Start Parking Session</h2>
@@ -114,16 +131,11 @@ const HomePage: React.FC = () => {
             </p>
           </div>
           <div className="flex items-center space-x-4">
-             {/* <a href="/qr-scan-page" target="_blank" rel="noopener noreferrer" className="block w-full max-w-2xl no-underline"> */}
-
             <PlaceholderQRCode />
             <div className="bg-green-500 p-3 rounded-full shadow-md">
               <ArrowRightIcon />
-                  {/* </a> */}
             </div>
-        
           </div>
-          {/* </Link> */}
         </div>
 
         {/* Quick Actions */}
@@ -145,31 +157,27 @@ const HomePage: React.FC = () => {
         </div>
 
         {/* Session Status */}
-        <div className="bg-white p-4 sm:p-6 rounded-xl shadow">
+        {/* <div className="bg-white p-4 sm:p-6 rounded-xl shadow">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-[#2C2C2E]">Session status</h3>
             <span className={`px-3 py-1 text-xs font-semibold rounded-full
-              ${sessionStatus === 'active' ? 'bg-green-100 text-green-700' : 
+              ${sessionStatus === 'active' ? 'bg-green-100 text-green-700' :
                 sessionStatus === 'pending' ? 'bg-yellow-100 text-yellow-700' :
                 'bg-neutral-100 text-neutral-700'}`}>
               {sessionStatus.charAt(0).toUpperCase() + sessionStatus.slice(1)}
             </span>
-          </div>
-          {sessionStatus === 'inactive' && (
+          </div> */}
+          {/* {sessionStatus === 'inactive' && (
             <p className="text-sm text-[#8A8A8E]">You have no active parking sessions.</p>
-          )}
-          {/* Add content for active/pending sessions here if needed */}
-        </div>
-        
+          )} */}
+        {/* </div> */}
+
         {/* Bottom Action Buttons */}
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
             <Button variant="primary" fullWidth onClick={handleScanQR}>
                 Scan QR
             </Button>
-            {/* <Button variant="secondary" fullWidth onClick={handleEnterPlate}>
-                Enter plate number
-            </Button> */}
-        </div>
+        </div> */}
       </div>
     </AppLayout>
   );

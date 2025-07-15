@@ -243,6 +243,9 @@ export const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       state.error = null;
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('accessToken');
+      }
       logSuccess({ 
         feature: 'Auth', 
         action: 'Logout Success' 

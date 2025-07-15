@@ -14,7 +14,7 @@ const EnterPlatePage: React.FC = () => {
   const [secureId, setSecureId] = useState('');
   const { isLoading, error } = useSelector((state: RootState) => state.parking);
 
-  const secureIdLength = 4; // Secure ID is now 4 digits
+  const secureIdLength = 6; // Secure ID is now 4 digits
 
   const handleSecureIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSecureId(e.target.value);
@@ -50,7 +50,7 @@ const EnterPlatePage: React.FC = () => {
             value={secureId}
             onChange={handleSecureIdChange}
             maxLength={secureIdLength}
-            pattern="[0-9]{4}"
+            pattern="[0-9]{6}"
             inputMode="numeric"
             className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FDB813]"
             placeholder={`Enter ${secureIdLength}-digit Secure ID`}

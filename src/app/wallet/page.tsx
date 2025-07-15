@@ -1,9 +1,11 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AppLayout from '../../components/layout/AppLayout';
 import ScreenHeader from '../../components/ui/ScreenHeader';
+import { fetchWalletBalance } from '@/store/slice/wallet';
 import { CardPaymentIcon, WalletTopUpIcon, PlusIcon, AutoDebitIcon, TopUpIcon } from '@/components/ui/Icon';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
 interface ActivityItem {
   id: string;
@@ -65,6 +67,9 @@ const mockActivities: ActivityItem[] = [
 
 const WalletPage: React.FC = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { balance } = useAppSelector((state) => state.wallet);
+  const { user, isAuthenticated } = useAppSelector(state => state.auth);
   const [activeTab, setActiveTab] = useState<'Home' | 'Wallet' | 'History' | 'Payments'>('Wallet');
 
   const getStatusColor = (status?: string) => {
@@ -79,6 +84,13 @@ const WalletPage: React.FC = () => {
   const getAmountColor = (amount: string) => {
     return amount.startsWith('+') ? 'text-green-600' : 'text-red-500';
   };
+  useEffect(() => {
+      // Only fetch data if the user is authenticated.
+      if (isAuthenticated) {
+        dispatch(fetchWalletBalance());
+       
+      }
+    }, [dispatch, isAuthenticated]);
 
   return (
     <AppLayout
@@ -105,7 +117,7 @@ const WalletPage: React.FC = () => {
                 <div className="flex justify-between items-start mb-6">
                   <div>
                     <p className="text-neutral-300 text-lg mb-2">Available Balance</p>
-                    <p className="text-5xl font-bold mb-1">₦24,356.78</p>
+                    <p className="text-5xl font-bold mb-1">{balance !== null ? `₦${balance}` : 'Loading...'}</p>
                     <p className="text-[#FDB813] font-medium">Nigerian Naira</p>
                   </div>
                   <div className="text-right">
@@ -116,14 +128,14 @@ const WalletPage: React.FC = () => {
                 
                 {/* Mini stats */}
                 <div className="grid grid-cols-2 gap-4 pt-6 border-t border-neutral-700">
-                  <div>
+                  {/* <div>
                     <p className="text-neutral-400 text-sm">This Month Spent</p>
                     <p className="text-red-400 font-semibold text-lg">-₦15,800</p>
                   </div>
                   <div>
                     <p className="text-neutral-400 text-sm">This Month Added</p>
                     <p className="text-green-400 font-semibold text-lg">+₦35,000</p>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
@@ -137,7 +149,7 @@ const WalletPage: React.FC = () => {
                 { 
                   label: 'Add Payment Method', 
                   icon: <PlusIcon />, 
-                  onClick: () => router.push('/payment-method'),
+                  onClick: () => router.push('wallet/topup'),
                   description: 'Link a new card or bank account',
                   color: 'bg-blue-500 hover:bg-blue-600'
                 },
@@ -151,7 +163,7 @@ const WalletPage: React.FC = () => {
                 { 
                   label: 'Top Up Wallet', 
                   icon: <TopUpIcon />, 
-                  onClick: () => router.push('/wallet/top-up'),
+                  onClick: () => router.push('/wallet/topup'),
                   description: 'Add money to your wallet',
                   color: 'bg-green-500 hover:bg-green-600'
                 },
